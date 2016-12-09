@@ -299,9 +299,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         listView.setAdapter(simpleAdapter);
         //mapView.setAlpha(View.ALPHA.get(0.2));
     }
+
     private void query2(){
         initData();
-        //Toast.makeText(getApplicationContext(), ""+(R.drawable.touxiang8), Toast.LENGTH_LONG).show();
         mListViewAdapter = new ListViewAdapter(mArrayList,MainActivity.this);
         listView.setAdapter(mListViewAdapter);
     }
@@ -309,24 +309,24 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     private void initData(){
         mArrayList=new ArrayList<ArrayList<HashMap<String,Object>>>();
         HashMap<String, Object> hashMap=null;
-        ArrayList<HashMap<String,Object>> arrayListForEveryGridView;
+        ArrayList<HashMap<String,Object>> arrayListForEveryItem;
         for (int i = 0; i < 10; i++) {
-            arrayListForEveryGridView=new ArrayList<HashMap<String,Object>>();
+            arrayListForEveryItem =new ArrayList<HashMap<String,Object>>();
             hashMap=new HashMap<String, Object>();
             hashMap.put("header",imagesId[i]);
-            arrayListForEveryGridView.add(hashMap);
+            arrayListForEveryItem.add(hashMap);
             hashMap=new HashMap<String, Object>();
             hashMap.put("username",usernames[i]);
-            arrayListForEveryGridView.add(hashMap);
+            arrayListForEveryItem.add(hashMap);
             hashMap=new HashMap<String, Object>();
             hashMap.put("talk",desc[i]);
-            arrayListForEveryGridView.add(hashMap);
+            arrayListForEveryItem.add(hashMap);
             for (int j = 0; j < 9; j++) {
                 hashMap=new HashMap<String, Object>();
                 hashMap.put("picture"+j,imagesId[j]);
-                arrayListForEveryGridView.add(hashMap);
+                arrayListForEveryItem.add(hashMap);
             }
-            mArrayList.add(arrayListForEveryGridView);
+            mArrayList.add(arrayListForEveryItem);
         }
         Object object = mArrayList.get(0).get(0).get("header");
         //Integer image = (Integer)object;
