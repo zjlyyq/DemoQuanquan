@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Created by zjlyyq on 2016/11/7.
@@ -59,9 +60,10 @@ public class GridViewAdapter extends BaseAdapter {
 
 
         if (this.mList != null) {
-            HashMap<String, Object> hashMap = this.mList.get(position);
+            HashMap<String, Object> hashMap = this.mList.get(position+3);
+            Integer tx = (Integer) hashMap.get("picture"+position);
             if (holder.imageView != null) {
-                holder.imageView.setImageResource(R.drawable.touxiang6);
+                holder.imageView.setImageResource(tx);
                 holder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
