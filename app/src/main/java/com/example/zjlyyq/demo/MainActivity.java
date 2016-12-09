@@ -59,22 +59,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     private ListViewAdapter mListViewAdapter;
     private ArrayList<ArrayList<HashMap<String,Object>>> mArrayList;
     private String[] usernames = new String[]{"后防天团","心有山海","仓央嘉措","晃过天空","大帝出征，寸草不生","里村红叶 ","皇马大礼包保级队","董卓爱吃菜 ","眼神能杀人 ","欧洲活雷锋"};
-    String str1 = "每个人的性格中，都有某些无法让人接受的部分，再美好的人也一样。所以不要苛求别人，也不要埋怨自己。与其埋怨，不如改变自己。管好自己的心，做好自己的事，比什么都强。人生无完美，曲折亦风景。";
-    String str2 = "最近超火的一只鹿，据说只要看到的30秒内转. 走，2016年剩下的两个月就能行大运！！！据悉，这只白色的驯鹿并不是新的物种，只是因为基因变异而导致皮肤发白。当地流传着一种说法：白鹿有一种特殊意义，它是神圣的，并会带来幸运。。反正我是信了[耶]";
-    String str3 = "总有个人会爱你不大的眼睛 不高的鼻梁 不完美的身材 不长的小短腿 不会下降的体重和你不要脸的性格";
-    String str4 = "总有个人会爱你不大的眼睛 不高的鼻梁 不完美的身材 不长的小短腿 不会下降的体重和你不要脸的性格";
-    String str5 = "最近超火的一只鹿，据说只要看到的30秒内转. 走，2016年剩下的两个月就能行大运！！！据悉，这只白色的驯鹿并不是新的物种，只是因为基因变异而导致皮肤发白。当地流传着一种说法：白鹿有一种特殊意义，它是神圣的，并会带来幸运。。反正我是信了[耶]";
-    String str6 = "每个人的性格中，都有某些无法让人接受的部分，再美好的人也一样。所以不要苛求别人，也不要埋怨自己。与其埋怨，不如改变自己。管好自己的心，做好自己的事，比什么都强。人生无完美，曲折亦风景。";
-    String str7 = "最近超火的一只鹿，据说只要看到的30秒内转. 走，2016年剩下的两个月就能行大运！！！据悉，这只白色的驯鹿并不是新的物种，只是因为基因变异而导致皮肤发白。当地流传着一种说法：白鹿有一种特殊意义，它是神圣的，并会带来幸运。。反正我是信了[耶]";
-    String str8 = "总有个人会爱你不大的眼睛 不高的鼻梁 不完美的身材 不长的小短腿 不会下降的体重和你不要脸的性格";
-    String str9 = "总有个人会爱你不大的眼睛 不高的鼻梁 不完美的身材 不长的小短腿 不会下降的体重和你不要脸的性格";
-    String str10 = "最近超火的一只鹿，据说只要看到的30秒内转. 走，2016年剩下的两个月就能行大运！！！据悉，这只白色的驯鹿并不是新的物种，只是因为基因变异而导致皮肤发白。当地流传着一种说法：白鹿有一种特殊意义，它是神圣的，并会带来幸运。。反正我是信了[耶]";
-    private String[] desc = new String[]{str1,str2,str3,str4,str5,str6,str7,str8,str9,str10};
     private int[] imagesId = new int[]{R.drawable.touxiang,R.drawable.touxiang2,R.drawable.touxiang3,R.drawable.touxiang4,R.drawable.touxiang5,
             R.drawable.touxiang6,R.drawable.touxiang7,R.drawable.touxiang8,R.drawable.touxiang9,R.drawable.touxiang10};
     LinearLayout opt;
     ImageButton btSelect;
     ImageButton btTalk;
+    private int[] talk = new int[]{R.string.talk1,R.string.talk2,R.string.talk3,R.string.talk4
+    ,R.string.talk5,R.string.talk6,R.string.talk7,R.string.talk8,R.string.talk9,R.string.talk1};
     //定位需要的声明
     private AMapLocationClient mLocationClient = null;//定位发起端
     private AMapLocationClientOption mLocationOption = null;//定位参数
@@ -285,21 +276,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     public void deactivate() {
         mListener = null;
     }
-    private void query(){
-        List<Map<String,Object>> listItems = new ArrayList<Map<String,Object>>();
-        for(int i = 0;i < usernames.length;i ++){
-            Map<String,Object> listItem = new HashMap<String,Object>();
-            listItem.put("header",imagesId[i]);
-            listItem.put("personName",usernames[i]);
-            listItem.put("talk",desc[i]);
-            listItems.add(listItem);
-        }
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this,listItems,R.layout.simple_item,
-                new String[]{"personName","header","talk"},new int[]{R.id.name,R.id.header,R.id.talk});
-        listView.setAdapter(simpleAdapter);
-        //mapView.setAlpha(View.ALPHA.get(0.2));
-    }
-
     private void query2(){
         initData();
         mListViewAdapter = new ListViewAdapter(mArrayList,MainActivity.this);
@@ -307,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     }
 
     private void initData(){
-        mArrayList=new ArrayList<ArrayList<HashMap<String,Object>>>();
+        mArrayList = new ArrayList<ArrayList<HashMap<String,Object>>>();
         HashMap<String, Object> hashMap=null;
         ArrayList<HashMap<String,Object>> arrayListForEveryItem;
         for (int i = 0; i < 10; i++) {
@@ -319,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             hashMap.put("username",usernames[i]);
             arrayListForEveryItem.add(hashMap);
             hashMap=new HashMap<String, Object>();
-            hashMap.put("talk",desc[i]);
+            hashMap.put("talk",talk[i]);
             arrayListForEveryItem.add(hashMap);
             for (int j = 0; j < 9; j++) {
                 hashMap=new HashMap<String, Object>();
