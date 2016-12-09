@@ -74,13 +74,8 @@ public class ListViewAdapter extends BaseAdapter {
                 holder.textView2.setText(talk.toString());
             }
             if(holder.imageView != null){
-                //Object header = this.mList.get(position).get(0).get("hander");
-                //Toast.makeText(AppCompatActivity,header.getClass().getName(),Toast.LENGTH_LONG).show();
-                //holder.imageView.setImageResource(header.toString());
-                Object header = this.mList.get(position).get(0).get("hander");
-                //int image = (int)header;
-                //holder.imageView.setImageResource(image);
-                holder.imageView.setImageResource(R.drawable.touxiang7);
+                Integer header = (Integer)this.mList.get(position).get(0).get("header");
+                holder.imageView.setImageResource(header);
             }
             if (holder.gridView != null) {
                 ArrayList<HashMap<String, Object>> arrayListForEveryGridView = this.mList.get(position);
@@ -90,7 +85,6 @@ public class ListViewAdapter extends BaseAdapter {
         }
         return convertView;
     }
-
 
     private class ViewHolder {
         ImageView imageView;
