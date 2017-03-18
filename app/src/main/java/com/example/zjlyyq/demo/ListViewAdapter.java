@@ -29,9 +29,9 @@ public class ListViewAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         if (mList == null) {
-            return 20;
+            return 1;
         } else {
-            return this.mList.size();
+            return this.mList.size()+1;        //多返回一个，用于显示提示信息
         }
     }
     @Override
@@ -39,7 +39,12 @@ public class ListViewAdapter extends BaseAdapter {
         if (mList == null) {
             return null;
         } else {
-            return this.mList.get(position);
+            if(position == this.mList.size()){
+                return this.mList.get(position-1);
+            }
+            else{
+                return this.mList.get(position);
+            }
         }
     }
     @Override
@@ -49,6 +54,18 @@ public class ListViewAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
+        if(position == this.mList.size()){
+            if (convertView == null) {
+                holder = new ViewHolder();
+                convertView = LayoutInflater.from
+                        (this.mContext).inflate(R.layout.the_last, null, false);
+                holder.textView = (TextView)convertView.findViewById(R.id.the_last);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+            return  convertView;
+        }
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = LayoutInflater.from
@@ -61,17 +78,14 @@ public class ListViewAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-
-
         if (this.mList != null) {
-            String str9 = "总有个人会爱你不大的眼睛 不高的鼻梁 不完美的身材 不长的小短腿 不会下降的体重和你不要脸的性格";
             if (holder.textView != null) {
-                Object username = this.mList.get(position).get(1).get("username");
-                holder.textView.setText(username.toString());
+                Integer username = (Integer)this.mList.get(position).get(1).get("username");
+                holder.textView.setText(username);
             }
             if (holder.textView2 != null) {
-                Object talk = this.mList.get(position).get(2).get("talk");
-                holder.textView2.setText(talk.toString());
+                Integer talk = (Integer)this.mList.get(position).get(2).get("talk");
+                holder.textView2.setText(talk);
             }
             if(holder.imageView != null){
                 Integer header = (Integer)this.mList.get(position).get(0).get("header");
@@ -91,5 +105,9 @@ public class ListViewAdapter extends BaseAdapter {
         TextView textView;
         TextView textView2;
         GridView gridView;
+    }
+    //最后一行的显示信息只有一排文字
+    private class ViewHolder2{
+        TextView textView;
     }
 }

@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * Created by zjlyyq on 2016/11/7.
@@ -58,7 +59,7 @@ public class GridViewAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-
+        Random random = new Random();
         if (this.mList != null) {
             HashMap<String, Object> hashMap = this.mList.get(position+3);
             Integer tx = (Integer) hashMap.get("picture"+position);

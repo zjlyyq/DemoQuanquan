@@ -30,7 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data android:name="com.amap.api.v2.apikey"
-                   android:value="1b5038c9b1101e3381323ab5f09d372c">
+                   android:value="c79b6bf8fec811cbbf7214901363ace3">
         </meta-data>
         <!--服务必须有！否则定位时候报错误，错误代码10-->
         <service android:name="com.amap.api.location.APSService"></service>
@@ -42,6 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".PublishActivity">
+
+        </activity>
+        <activity android:name=".UserHomeActivity"></activity>
     </application>
 
 </manifest>
