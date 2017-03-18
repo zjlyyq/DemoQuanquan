@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     Bitmap baseBitmap;
     Canvas canvas;
     Paint paint;
+
     private AMapLocationClient mLocationClient = null;//定位发起端
     private AMapLocationClientOption mLocationOption = null;//定位参数
     private LocationSource.OnLocationChangedListener mListener = null;//定位监听器
