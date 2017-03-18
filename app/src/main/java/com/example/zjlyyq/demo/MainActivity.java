@@ -60,27 +60,16 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements LocationSource,AMapLocationListener{
+    private static final String TAG = "GpsActivity";
     private MapView mapView = null;
     private ImageButton user_bt;
     private AMap aMap = null;
     private ImageButton publish_button;
     private UiSettings mUiSettings;//定义一个UiSettings对象
-    private static final String TAG = "GpsActivity";
     private ListView listView;
     private ArrayList<Message> messages;
     private ListViewAdapter mListViewAdapter;
     private ArrayList<ArrayList<HashMap<String,Object>>> mArrayList;
-    private int flag[] = new int[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-    private int px[] = new int[]{100,200,300,400,500,600,700,800,900,1000,1100,1200,50,150,250,350,450,550,650,750};
-    private int py[] = new int[]{100,300,500,700,900,1100,1300,1500,1700,1900,100,300,500,700,900,1100,1300,1500,1700,1900};
-    private int[] usernames = new int[]{R.string.name1,R.string.name2,R.string.name3,R.string.name4,R.string.name5,R.string.name6,R.string.name7
-            ,R.string.name8,R.string.name9,R.string.name10,
-            R.string.name11,R.string.name12,R.string.name13,R.string.name14,R.string.name15,R.string.name16,R.string.name17
-            ,R.string.name18,R.string.name19,R.string.name20};
-    private int[] imagesId = new int[]{R.drawable.touxiang,R.drawable.touxiang2,R.drawable.touxiang3,R.drawable.touxiang4,R.drawable.touxiang5,
-            R.drawable.touxiang6,R.drawable.touxiang7,R.drawable.touxiang8,R.drawable.touxiang9,R.drawable.touxiang10,
-            R.drawable.touxiang,R.drawable.touxiang2,R.drawable.touxiang3,R.drawable.touxiang4,R.drawable.touxiang5,
-            R.drawable.touxiang6,R.drawable.touxiang7,R.drawable.touxiang8,R.drawable.touxiang9,R.drawable.touxiang10};
     LinearLayout opt;
     ImageButton btSelect;
     ImageButton btTalk;
@@ -88,11 +77,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     Bitmap baseBitmap;
     Canvas canvas;
     Paint paint;
-    private int[] talk = new int[]{R.string.talk1,R.string.talk2,R.string.talk3,R.string.talk4
-    ,R.string.talk5,R.string.talk6,R.string.talk7,R.string.talk8,R.string.talk9,R.string.talk10,
-            R.string.talk11,R.string.talk12,R.string.talk13,R.string.talk14
-            ,R.string.talk15,R.string.talk16,R.string.talk17,R.string.talk18,R.string.talk19,R.string.talk20};
-    //定位需要的声明
     private AMapLocationClient mLocationClient = null;//定位发起端
     private AMapLocationClientOption mLocationOption = null;//定位参数
     private LocationSource.OnLocationChangedListener mListener = null;//定位监听器
@@ -229,15 +213,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                         paint.setColor(Color.BLUE);
                         canvas.drawRect((float)minX,(float)minY,(float)maxX,(float)maxY,paint);
                         paint.setColor(Color.RED);
-                        for(int i = 0;i < px.length;i ++){
-                        if(px[i] < minX || px[i] > maxX){
-                            flag[i] = 0;
-                        }
-                        if(py[i] < minY || py[i] > maxY){
-                            flag[i] = 0;
-                        }
-                    }
-                        query2();
                         listView.setVisibility(View.VISIBLE);
                         iv.setVisibility(View.INVISIBLE);
                         maxX = 0;
@@ -253,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             @Override
             public void onClick(View v) {
                 listView.setVisibility(View.VISIBLE);
-                query2();
                 opt.setVisibility(View.INVISIBLE);
             }
         });
@@ -386,7 +360,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude())));
                     //点击定位按钮 能够将地图的中心移动到定位点
                     mListener.onLocationChanged(amapLocation);
-
                     //获取定位信息
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity() + "" + amapLocation.getProvince() + "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
@@ -409,43 +382,5 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     //停止定位
     public void deactivate() {
         mListener = null;
-    }
-    private void query2(){
-        initData();
-        if(mArrayList.isEmpty()){
-            Toast.makeText(getApplicationContext(), "所选区域暂时没有动态", Toast.LENGTH_LONG).show();
-            return;
-        }
-        mListViewAdapter = new ListViewAdapter(mArrayList,MainActivity.this);
-        listView.setAdapter(mListViewAdapter);
-        for(int i = 0;i < px.length;i ++){
-            flag[i] = 1;
-        }
-    }
-    private void initData(){
-        mArrayList = new ArrayList<ArrayList<HashMap<String,Object>>>();
-        HashMap<String, Object> hashMap=null;
-        ArrayList<HashMap<String,Object>> arrayListForEveryItem;
-        for (int i = 0; i < 20; i++) {
-            if(flag[i] == 0){
-                continue;
-            }
-            arrayListForEveryItem =new ArrayList<HashMap<String,Object>>();
-            hashMap=new HashMap<String, Object>();
-            hashMap.put("header",imagesId[i]);
-            arrayListForEveryItem.add(hashMap);
-            hashMap=new HashMap<String, Object>();
-            hashMap.put("username",usernames[i]);
-            arrayListForEveryItem.add(hashMap);
-            hashMap=new HashMap<String, Object>();
-            hashMap.put("talk",talk[i]);
-            arrayListForEveryItem.add(hashMap);
-            for (int j = 0; j < 9; j++) {
-                hashMap=new HashMap<String, Object>();
-                hashMap.put("picture"+j,imagesId[j]);
-                arrayListForEveryItem.add(hashMap);
-            }
-            mArrayList.add(arrayListForEveryItem);
-        }
     }
 }
