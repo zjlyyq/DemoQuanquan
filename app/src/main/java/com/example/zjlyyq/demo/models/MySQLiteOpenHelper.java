@@ -10,30 +10,33 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_USERINFO_SQL = "create table UserInfo(" +
-            "_id integer primary key autoincrement," +
-            "email_adress varchar(50)," +
+            "userId integer primary key autoincrement," +
             "userName varchar(20)," +
             "password varchar(20)," +
-            "register_time integer," +
             "userPhoto blob," +
+            "email_adress varchar(50)," +
             "sex integer," +
             "age integer," +
-            "privilege integer," +
-            "userPhone integer(11)";
+            "userPhone integer(11),"+
+            "register_time integer," +
+            "privilege integer)";
     private static final String CREATE_TABLE_MESSAGE_SQL = "create table messageInfo(" +
             "_id integer primary key autoincrement," +
-            "userId integer"+
-            "text varchar(300)"+
+            "userId integer,"+
+            "text varchar(300),"+
             "publish_time integer," +
             "x integer," +
             "y integer," +
             "transmitTimes integer," +
             "favourTimes integer," +
-            "commentTimes integer(11)";
-    private static final String CREATE_TABLE_MESSAGEIMAGE_SQL = "create table messageInfo(" +
+            "commentTimes integer(11))";
+    private static final String CREATE_TABLE_MESSAGEIMAGE_SQL = "create table messageImage(" +
             "_id integer primary key autoincrement," +
-            "messageId integer"+
-            "imageId integer,";
+            "messageId integer,"+
+            "imageId integer)";
+    private static final String CREATE_TABLE_IMAGES_SQL = "create table images(" +
+            "_id integer primary key autoincrement," +
+            "image blob)";
     public MySQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -42,6 +45,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_USERINFO_SQL);
         sqLiteDatabase.execSQL(CREATE_TABLE_MESSAGE_SQL);
         sqLiteDatabase.execSQL(CREATE_TABLE_MESSAGEIMAGE_SQL);
+        sqLiteDatabase.execSQL(CREATE_TABLE_IMAGES_SQL);
     }
 
     @Override
