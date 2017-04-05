@@ -41,6 +41,11 @@ public class EditActivity extends AppCompatActivity {
             Bitmap bmp = BitmapFactory.decodeStream(cr.openInputStream(uri));
             photo.setImageBitmap(bmp);
             user.setUserPhoto(bmp);
+            if (bmp.getWidth() > bmp.getHeight()){
+                photo.setScaleType(ImageView.ScaleType.CENTER_CROP );
+            }else{
+                photo.setScaleType(ImageView.ScaleType.CENTER_CROP );
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

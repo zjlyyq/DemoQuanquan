@@ -30,7 +30,7 @@
                 android:layout_height="150dp"
                 android:layout_gravity="center"
                 android:background="@drawable/touxiang7"
-                android:scaleType="center"
+                android:scaleType="centerCrop"
                 app:srcCompat="@android:drawable/ic_menu_camera" />
         </LinearLayout>
         <LinearLayout
