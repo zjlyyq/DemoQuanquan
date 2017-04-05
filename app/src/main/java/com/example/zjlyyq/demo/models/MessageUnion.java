@@ -24,11 +24,20 @@ public class MessageUnion {
     private  Context mAppContext;
     private MessageUnion(Context appContext){
         mAppContext = appContext;
+    }
+    //唯一方法获得此类的实例
+    public static MessageUnion getInstance(Context context){
+        if(messageUnion == null){
+            messageUnion = new MessageUnion(context.getApplicationContext());
+        }
+        return  messageUnion;
+    }
+    public ArrayList<Message> getMessages() {
         messages = new ArrayList<Message>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
-            MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(appContext,SqlFile,null,1);
+            MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(mAppContext,SqlFile,null,1);
             db = mySQLiteOpenHelper.getReadableDatabase();
             cursor = db.rawQuery("select * from messageInfo;",null);
             cursor.moveToFirst();
@@ -50,15 +59,6 @@ public class MessageUnion {
                 cursor.close();
             }
         }
-    }
-    //唯一方法获得此类的实例
-    public static MessageUnion getInstance(Context context){
-        if(messageUnion == null){
-            messageUnion = new MessageUnion(context.getApplicationContext());
-        }
-        return  messageUnion;
-    }
-    public ArrayList<Message> getMessages() {
         return messages;
     }
 

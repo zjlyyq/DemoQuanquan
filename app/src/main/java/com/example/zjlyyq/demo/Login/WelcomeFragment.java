@@ -15,7 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.zjlyyq.demo.MainActivity;
+import com.example.zjlyyq.demo.MapFragment;
 import com.example.zjlyyq.demo.R;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by jialuzhang on 2017/3/19.
@@ -25,7 +28,6 @@ public class WelcomeFragment extends Fragment {
     private static final String SharedPreferencesFileName = "userInfo";
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-
     private static int user_id;
     private Button register_bt;
     private Button login_bt;
@@ -39,14 +41,15 @@ public class WelcomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.welcome_fragment,container,false);
-        sharedPreferences = getActivity().getSharedPreferences("userInfo", Context.MODE_PRIVATE);   //从userInfo文件中读取是否由用户已登陆信息
-        user_id = sharedPreferences.getInt(SharedPreferencesFileName,-1);
-        /*若发现用户已经登陆过，直接跳转即可
+        sharedPreferences = getActivity().getSharedPreferences("userInfo", MODE_PRIVATE);   //从userInfo文件中读取是否由用户已登陆信息
+        user_id = sharedPreferences.getInt("userId",-1);
+        Log.d("TEST2","查看用户有无登陆过 user_id = "+user_id);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        FragmentTransaction  transaction = fm.beginTransaction();
         if(user_id != -1){
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
+            MapFragment mapFragment = MapFragment.newInstance(user_id);
+            transaction.replace(R.id.fragment_container,mapFragment).commit();
         }
-        */
         register_bt = (Button)view.findViewById(R.id.register_bt);
         login_bt = (Button)view.findViewById(R.id.to_login_bt);
         //Log.d("WelcomeFragment","buju");

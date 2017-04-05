@@ -37,6 +37,19 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_IMAGES_SQL = "create table images(" +
             "_id integer primary key autoincrement," +
             "image blob)";
+    private static final String CREATE_TABLE_COMMENTS_SQL = "create table comments(" +
+            "commentId integer primary key autoincrement," +
+            "userId integer," +
+            "MessageId integer," +
+            "favourTimes integer," +
+            "date integer," +
+            "text varchar(300))";
+    private static final String CREATE_TABLE_REALATIONSHIP_SQL = "create table relationShips(" +
+            "relationId integer primary key autoincrement," +
+            "user1Id integer," +
+            "user2Id integer," +
+            "isTrue boolean," +
+            "beginTime integer)";
     public MySQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -46,6 +59,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_MESSAGE_SQL);
         sqLiteDatabase.execSQL(CREATE_TABLE_MESSAGEIMAGE_SQL);
         sqLiteDatabase.execSQL(CREATE_TABLE_IMAGES_SQL);
+        sqLiteDatabase.execSQL(CREATE_TABLE_COMMENTS_SQL);
+        sqLiteDatabase.execSQL(CREATE_TABLE_REALATIONSHIP_SQL);
     }
 
     @Override

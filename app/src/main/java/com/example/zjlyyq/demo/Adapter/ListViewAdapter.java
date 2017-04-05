@@ -2,6 +2,8 @@ package com.example.zjlyyq.demo.Adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +28,11 @@ import java.util.ArrayList;
 public class ListViewAdapter extends BaseAdapter {
     private Context mContext;
     private ArrayList<Message> messages;
-    public ListViewAdapter(Context context,ArrayList<Message> messages){
+    FragmentManager fm;
+    public ListViewAdapter(Context context,ArrayList<Message> messages,FragmentManager fm){
         this.mContext = context;
         this.messages = messages;
+        this.fm = fm;
     }
     @Override
     public int getCount() {
@@ -61,8 +65,11 @@ public class ListViewAdapter extends BaseAdapter {
         }
         Message message = this.messages.get(position);
         int user_id = message.getPublisherId();
-        User user = User.getUserById(user_id);
+        User user2 = new User(mContext);
+        //User user = User.getUserById(user_id);
+        User user = user2.getUserById(user_id);
         if (user.getUserPhoto() == null){
+            Log.d("TEST2","yonghu" + user.getUserId()+"难道真的取不出头像？");
             holder.imageView.setImageResource(R.drawable.touxiang);
         }else {
             holder.imageView.setImageBitmap(user.getUserPhoto());
@@ -72,9 +79,8 @@ public class ListViewAdapter extends BaseAdapter {
         int message_id = message.getMessageId();
         MessageImage messageImage = new MessageImage(mContext,1,1);
         ArrayList<Bitmap> pictures = messageImage.getPicturesByMessageId(message_id);
-        GridViewAdapter adapter = new GridViewAdapter(mContext,pictures);
+        GridViewAdapter adapter = new GridViewAdapter(mContext,pictures,fm);
         holder.gridView.setAdapter(adapter);
-
         return convertView;
     }
 

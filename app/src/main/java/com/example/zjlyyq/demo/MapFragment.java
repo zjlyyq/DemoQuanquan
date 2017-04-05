@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -34,9 +35,11 @@ import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.example.zjlyyq.demo.Adapter.ListViewAdapter;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.MessageUnion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -85,155 +88,16 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         //获取状态的集合
         messageUnion = MessageUnion.getInstance(getActivity());
-        messages = messageUnion.getMessages();
-        Log.d("TEST2","messageSize = "+messages.size());
+        //Log.d("TEST2","messageSize = "+messages.size());
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_main,container,false);
-
         toFindEverything(view);
-        com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
-        publish_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),PublishActivity.class);
-                intent.putExtra("USERID",userId);
-                startActivity(intent);
-            }
-        });
-
-        user_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),UserHomeActivity.class);
-                startActivity(intent);
-            }
-        });
-        mapView.onCreate(savedInstanceState);
-        opt.setVisibility(View.INVISIBLE);
-        listView.setVisibility(View.INVISIBLE);
-        //长按显示去区域内所有的动态
-        btSelect.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                opt.setVisibility(View.VISIBLE);
-                return true;            //return true可以取消长按时的短按触发
-            }
-        });
-        btSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(opt.getVisibility() == View.VISIBLE){
-                    opt.setVisibility(View.INVISIBLE);
-                }
-                if(listView.getVisibility() == View.VISIBLE){
-                    listView.setVisibility(View.INVISIBLE);
-                }
-                else if(opt.getVisibility() == View.INVISIBLE && listView.getVisibility() == View.INVISIBLE){
-                    Toast.makeText(getActivity(), "请在地图上圈出你想要的区域", Toast.LENGTH_LONG).show();
-                    // 创建一张空白图片
-                    baseBitmap = Bitmap.createBitmap(1080,1920,Bitmap.Config.ARGB_8888);
-                    // 创建一张画布
-                    canvas = new Canvas(baseBitmap);
-                    // 画布背景为灰色
-                    // canvas.drawColor(Color.GRAY);
-                    // 创建画笔
-                    paint = new Paint();
-                    // 画笔颜色为红色
-                    paint.setColor(Color.RED);
-                    // 宽度5个像素
-                    paint.setStrokeWidth(5);
-                    // 先将灰色背景画上
-                    canvas.drawBitmap(baseBitmap, new Matrix(), paint);
-                    iv.setImageBitmap(baseBitmap);
-                    paint.setStyle(Paint.Style.STROKE);
-                    iv.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-        iv.setOnTouchListener(new View.OnTouchListener() {
-            int startX = 0;
-            int startY = 0;
-            int maxX = 0;
-            int minX = 10000;
-            int minY = 10000;
-            int maxY = 0;
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        // 获取手按下时的坐标
-                        startX = (int) event.getX();
-                        startY = (int) event.getY();
-                        if(minX > startX){
-                            minX = startX;
-                        }
-                        if(maxX < startX){
-                            maxX = startX;
-                        }
-                        if(minY > startY){
-                            minY = startY;
-                        }
-                        if(maxX < startY){
-                            maxY = startY;
-                        }
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        // 获取手移动后的坐标
-                        int stopX = (int) event.getX();
-                        int stopY = (int) event.getY();
-                        // 在开始和结束坐标间画一条线
-                        canvas.drawLine(startX, startY, stopX, stopY, paint);
-                        // 实时更新开始坐标
-                        startX = (int) event.getX();
-                        startY = (int) event.getY();
-                        if(minX > startX){
-                            minX = startX;
-                        }
-                        if(maxX < startX){
-                            maxX = startX;
-                        }
-                        if(minY > startY){
-                            minY = startY;
-                        }
-                        if(maxY < startY){
-                            maxY = startY;
-                        }
-                        iv.setImageBitmap(baseBitmap);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        paint.setColor(Color.BLUE);
-                        canvas.drawRect((float)minX,(float)minY,(float)maxX,(float)maxY,paint);
-                        paint.setColor(Color.RED);
-                        listView.setVisibility(View.VISIBLE);
-                        iv.setVisibility(View.INVISIBLE);
-                        maxX = 0;
-                        minX = 10000;
-                        minY = 10000;
-                        maxY = 0;
-                        break;
-                }
-                return true;
-            }
-        });
-        btTalk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listView.setVisibility(View.VISIBLE);
-                opt.setVisibility(View.INVISIBLE);
-            }
-        });
         initMap();
+        mapView.onCreate(savedInstanceState);
         return view;
     }
     private void initMap() {
@@ -350,8 +214,152 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         super.onResume();
         aMap.setMapType(AMap.MAP_TYPE_NIGHT);
         mapView.onResume();
-    }
+        messages = messageUnion.getMessages();
+        com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,getActivity().getSupportFragmentManager());
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("TEST2","开始跳转1");
+                Intent intent = new Intent(getActivity(),MessageDetailActivity.class);
+                Message message = messages.get(position);
+                intent.putExtra("MESSAGEID", message.getMessageId());
+                Log.d("TEST2","开始跳转");
+                startActivity(intent);
+            }
+        });
+        publish_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(),PublishActivity.class);
+                intent.putExtra("USERID",userId);
+                startActivity(intent);
+            }
+        });
 
+        user_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(),UserHomeActivity.class);
+                intent.putExtra("userId",userId);
+                Log.d("TEST2","穿过去的id是："+userId);
+                startActivity(intent);
+            }
+        });
+        opt.setVisibility(View.INVISIBLE);
+        listView.setVisibility(View.INVISIBLE);
+        //长按显示去区域内所有的动态
+        btSelect.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                opt.setVisibility(View.VISIBLE);
+                return true;            //return true可以取消长按时的短按触发
+            }
+        });
+        btSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(opt.getVisibility() == View.VISIBLE){
+                    opt.setVisibility(View.INVISIBLE);
+                }
+                if(listView.getVisibility() == View.VISIBLE){
+                    listView.setVisibility(View.INVISIBLE);
+                }
+                else if(opt.getVisibility() == View.INVISIBLE && listView.getVisibility() == View.INVISIBLE){
+                    Toast.makeText(getActivity(), "请在地图上圈出你想要的区域", Toast.LENGTH_LONG).show();
+                    // 创建一张空白图片
+                    baseBitmap = Bitmap.createBitmap(1080,1920,Bitmap.Config.ARGB_8888);
+                    // 创建一张画布
+                    canvas = new Canvas(baseBitmap);
+                    // 画布背景为灰色
+                    // canvas.drawColor(Color.GRAY);
+                    // 创建画笔
+                    paint = new Paint();
+                    // 画笔颜色为红色
+                    paint.setColor(Color.RED);
+                    // 宽度5个像素
+                    paint.setStrokeWidth(5);
+                    // 先将灰色背景画上
+                    canvas.drawBitmap(baseBitmap, new Matrix(), paint);
+                    iv.setImageBitmap(baseBitmap);
+                    paint.setStyle(Paint.Style.STROKE);
+                    iv.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        iv.setOnTouchListener(new View.OnTouchListener() {
+            int startX = 0;
+            int startY = 0;
+            int maxX = 0;
+            int minX = 10000;
+            int minY = 10000;
+            int maxY = 0;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        // 获取手按下时的坐标
+                        startX = (int) event.getX();
+                        startY = (int) event.getY();
+                        if(minX > startX){
+                            minX = startX;
+                        }
+                        if(maxX < startX){
+                            maxX = startX;
+                        }
+                        if(minY > startY){
+                            minY = startY;
+                        }
+                        if(maxX < startY){
+                            maxY = startY;
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        // 获取手移动后的坐标
+                        int stopX = (int) event.getX();
+                        int stopY = (int) event.getY();
+                        // 在开始和结束坐标间画一条线
+                        canvas.drawLine(startX, startY, stopX, stopY, paint);
+                        // 实时更新开始坐标
+                        startX = (int) event.getX();
+                        startY = (int) event.getY();
+                        if(minX > startX){
+                            minX = startX;
+                        }
+                        if(maxX < startX){
+                            maxX = startX;
+                        }
+                        if(minY > startY){
+                            minY = startY;
+                        }
+                        if(maxY < startY){
+                            maxY = startY;
+                        }
+                        iv.setImageBitmap(baseBitmap);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        paint.setColor(Color.BLUE);
+                        canvas.drawRect((float)minX,(float)minY,(float)maxX,(float)maxY,paint);
+                        paint.setColor(Color.RED);
+                        listView.setVisibility(View.VISIBLE);
+                        iv.setVisibility(View.INVISIBLE);
+                        maxX = 0;
+                        minX = 10000;
+                        minY = 10000;
+                        maxY = 0;
+                        break;
+                }
+                return true;
+            }
+        });
+        btTalk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listView.setVisibility(View.VISIBLE);
+                opt.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
     @Override
     public void onPause() {
         super.onPause();

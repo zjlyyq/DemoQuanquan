@@ -37,13 +37,6 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.login_fragment,container,false);
-        Thread checkThread = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-            }
-        };
-        checkThread.run();
         login_username_et = (EditText)view.findViewById(R.id.login_username_et);
         login_passwd_et = (EditText)view.findViewById(R.id.login_passwd_et);
         login_bt = (Button)view.findViewById(R.id.login_bt);

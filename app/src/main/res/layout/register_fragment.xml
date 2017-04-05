@@ -21,12 +21,13 @@
                 android:layout_weight="0.3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
+
             <EditText
                 android:id="@+id/email_et"
-                android:paddingRight="50dp"
-                android:layout_weight="0.7"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:paddingRight="50dp" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
@@ -81,12 +82,13 @@
                 android:layout_width="0dp"
                 android:gravity="right"
                 android:layout_height="wrap_content" />
+
             <EditText
                 android:id="@+id/repter_passwd"
-                android:paddingRight="50dp"
-                android:layout_weight="0.7"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:paddingRight="50dp" />
         </LinearLayout>
     </LinearLayout>
     <Button

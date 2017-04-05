@@ -21,6 +21,8 @@ import com.example.zjlyyq.demo.MapFragment;
 import com.example.zjlyyq.demo.R;
 import com.example.zjlyyq.demo.models.User;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by jialuzhang on 2017/3/19.
  */
@@ -45,7 +47,7 @@ public class RegisterFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.register_fragment,container,false);
-        sharedPreferences = getActivity().getSharedPreferences(SharedPreferencesFileName, Context.MODE_PRIVATE);
+        sharedPreferences = getActivity().getSharedPreferences(SharedPreferencesFileName, MODE_PRIVATE);
         editor = sharedPreferences.edit();
         email_et = (EditText)view.findViewById(R.id.email_et);
         username_et = (EditText)view.findViewById(R.id.username_et);
@@ -61,13 +63,12 @@ public class RegisterFragment extends Fragment {
                 user.setUserName(username_et.getText().toString());
                 user.setEmail_adress(email_et.getText().toString());
                 user.setPassword(passwd_et.getText().toString());
-                //Log.d("TEST","就看看");
-                //Toast.makeText(getActivity(),user.getEmail_adress(),Toast.LENGTH_SHORT).show();
                 user_id = user.insertIntoDatebase();
                 if(user_id != -1){
                     editor.putInt("userId",user_id);
+                    editor.commit();
+                    Log.d("TEST2","user_id = "+sharedPreferences.getInt("userId",-1));
                     Toast.makeText(getActivity(),TAG+":记录插入并返回成功",Toast.LENGTH_SHORT).show();
-                    Log.d("TEST","user_id = "+user_id);
                     MapFragment mapFragment = MapFragment.newInstance(user_id);
                     transaction.replace(R.id.fragment_container,mapFragment).commit();
                 }

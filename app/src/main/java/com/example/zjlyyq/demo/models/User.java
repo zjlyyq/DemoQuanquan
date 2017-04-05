@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
+
 /**
  * Created by jialuzhang on 2017/3/17.
  */
@@ -59,6 +61,7 @@ public class User {
             contentValues.put("password",password);
             contentValues.put("sex",sex);
             contentValues.put("age",age);
+            contentValues.put("userPhoto",getByteArrayOfbitmap(userPhoto));
             contentValues.put("userPhone",userPhone);
             contentValues.put("register_time",register_time);
             contentValues.put("privilege",privilege);
@@ -180,6 +183,30 @@ public class User {
             closeEverything(db,cursor);
         }
         return user;
+    }
+    public byte[] getByteArrayOfbitmap(Bitmap bitmap){
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);
+        return outputStream.toByteArray();
+    }
+    public void updateEdit(){
+        String SqlFile = "quanquan.db3";
+        Cursor cursor = null;
+        SQLiteDatabase db = null;
+        try{
+            MySQLiteOpenHelper helper = new MySQLiteOpenHelper(mContext,SqlFile,null,1);
+            db = helper.getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("userName",userName);
+            cv.put("userPhoto",getByteArrayOfbitmap(userPhoto));
+            cv.put("sex",sex);
+            db.update("userInfo",cv,"userId", new String[]{"" + userId});
+        }catch (Exception e){
+            Log.d("TEST2","根据id获取用户对象失败");
+            e.printStackTrace();
+        }finally {
+            closeEverything(db,cursor);
+        }
     }
     public int getUserId() {
         return userId;

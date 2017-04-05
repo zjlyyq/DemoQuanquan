@@ -43,6 +43,33 @@ public class Message {
         favourTimes = cursor.getInt(7);
         commentTimes = cursor.getInt(8);
     }
+    public  Message getMessageById(int message_id){
+        Message message = new Message(mContext);
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(mContext,"quanquan.db3",null,1);
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        try {
+            db = mySQLiteOpenHelper.getWritableDatabase();
+            cursor = db.rawQuery("select * from messageInfo where _id = " + message_id + ";",null);
+            if (cursor.moveToFirst()){
+                message.messageId = cursor.getInt(0);
+                message.publisherId=cursor.getInt(1);
+                message.text = cursor.getString(2);
+                message.publishDate = cursor.getLong(3);
+                message.x = cursor.getInt(4);
+                message.y = cursor.getInt(5);
+                message.transmitTimes = cursor.getInt(6);
+                message.favourTimes = cursor.getInt(7);
+                message.commentTimes = cursor.getInt(8);
+            }
+        }catch (Exception e){
+            Log.d("TEST2","根据messageId获取message失败");
+            e.printStackTrace();
+        }finally {
+            closeEverything(db,cursor);
+        }
+        return  message;
+    }
     private static void closeEverything(SQLiteDatabase db, Cursor cursor){
         Log.d("TEST","开始收尾");
         if (db != null && db.isOpen()){

@@ -43,11 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         </ListView>
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/ivDraw"
-            android:visibility="invisible"/>
+
         <LinearLayout
             android:id="@+id/options"
             android:orientation="horizontal"
@@ -68,6 +64,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivDraw"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
     </FrameLayout>
 
     <LinearLayout

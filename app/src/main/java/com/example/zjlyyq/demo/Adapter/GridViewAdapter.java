@@ -1,7 +1,10 @@
 package com.example.zjlyyq.demo.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.zjlyyq.demo.R;
+import com.example.zjlyyq.demo.ShowPictureFragment;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.User;
 
@@ -23,9 +27,11 @@ import java.util.ArrayList;
 public class GridViewAdapter extends BaseAdapter {
     private Context mContext;
     private ArrayList<Bitmap> pictures;
-    public GridViewAdapter(Context context,ArrayList<Bitmap> pictures){
+    FragmentManager fm;
+    public GridViewAdapter(Context context,ArrayList<Bitmap> pictures,FragmentManager fm){
         this.mContext = context;
         this.pictures = pictures;
+        this.fm = fm;
     }
     @Override
     public int getCount() {
@@ -43,7 +49,7 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         if (convertView == null){
             holder = new ViewHolder();
@@ -55,6 +61,15 @@ public class GridViewAdapter extends BaseAdapter {
         }
         Bitmap bitmap = pictures.get(position);
         holder.imageView.setImageBitmap(bitmap);
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction transaction = fm.beginTransaction();
+                ShowPictureFragment showPictureFragment = ShowPictureFragment.newInstance(pictures,position);
+                transaction.replace(R.id.fragment_container,showPictureFragment,null).commit();
+                //transaction.add(showPictureFragment,null).commit();
+            }
+        });
         return convertView;
     }
 
