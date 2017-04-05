@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_publish"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/publich_start"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_weight="0.25"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/cancel_bt"
+            android:text="取消"
+            android:background="@drawable/emotion_edittext_background"
+            />
+
+        <TextView
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="发布动态"
+            android:background="@drawable/emotion_edittext_background"
+            android:id="@+id/textView2" />
+
+        <Button
+            android:layout_weight="0.25"
+            android:layout_gravity="right"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/publich_bt"
+            android:background="@drawable/public_send_button"
+            android:text="发送"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@+id/publich_start"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.example.zjlyyq.demo.Emotion.EmotionTextView
+            android:layout_weight="0.5"
+            android:textSize="30dp"
+            android:id="@+id/edit_view"
+            android:hint="说点什么吧..."
+            android:gravity="start"
+            android:layout_below="@+id/publich_start"
+            android:layout_above="@+id/publich_end"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+        <com.example.zjlyyq.demo.NoScrollGridView
+            android:layout_weight="0.5"
+            android:id="@+id/photo_container"
+            android:numColumns="3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+        </com.example.zjlyyq.demo.NoScrollGridView>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/publich_end"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+
+        <LinearLayout
+            android:layout_weight="1.0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                style="@style/Public_button"
+                android:id="@+id/emo_bt"
+                android:text="表情"/>
+            <Button
+                android:id="@+id/photo_bt"
+                style="@style/Public_button"
+                android:text="图片"/>
+
+            <Button
+                style="@style/Public_button"
+                android:text="/#/"
+                android:id="@+id/button" />
+
+            <Button
+                style="@style/Public_button"
+                android:text="/@/"
+                android:id="@+id/button2" />
+        </LinearLayout>
+        <ViewStub
+            android:id="@+id/viewStub"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout="@layout/view_page"/>
+    </LinearLayout>
+
+</RelativeLayout>
