@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -38,10 +39,24 @@ import com.amap.api.maps.model.MyLocationStyle;
 import com.example.zjlyyq.demo.Adapter.ListViewAdapter;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.MessageUnion;
+import com.example.zjlyyq.demo.models.User;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by jialuzhang on 2017/3/19.
@@ -55,8 +70,10 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     private UiSettings mUiSettings;//定义一个UiSettings对象
     private ListView listView;
     private ArrayList<Message> messages;
+    private ArrayList<User> users;
     private MessageUnion messageUnion;
     private ListViewAdapter mListViewAdapter;
+
 
     //private SQLiteDatabase db;
     //private ArrayList<ArrayList<HashMap<String,Object>>> mArrayList;
@@ -88,7 +105,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         //获取状态的集合
         messageUnion = MessageUnion.getInstance(getActivity());
-        //Log.d("TEST2","messageSize = "+messages.size());
+        users = new ArrayList<User>();
     }
 
     @Nullable
@@ -98,6 +115,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         toFindEverything(view);
         initMap();
         mapView.onCreate(savedInstanceState);
+        Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         return view;
     }
     private void initMap() {
@@ -212,11 +230,13 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     @Override
     public void onResume() {
         super.onResume();
+        Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         aMap.setMapType(AMap.MAP_TYPE_NIGHT);
         mapView.onResume();
-        messages = messageUnion.getMessages();
-        com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,getActivity().getSupportFragmentManager());
-        listView.setAdapter(adapter);
+        //messages = messageUnion.getMessages();
+        new MyAsyncTask().execute();
+        //com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,getActivity().getSupportFragmentManager());
+        //listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -360,6 +380,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             }
         });
     }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -394,5 +415,74 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         opt = (LinearLayout)view.findViewById(R.id.options);
         btSelect = (ImageButton) view.findViewById(R.id.btSelect);
         btTalk = (ImageButton)view.findViewById(R.id.btTalk);
+    }
+    private class MyAsyncTask extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getMessages();
+            try {
+                getUsers();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,users,getActivity().getSupportFragmentManager());
+            listView.setAdapter(adapter);
+        }
+    }
+    public  void getMessages(){
+        Map<String,Object> messagemap = new HashMap<String,Object>();
+        messagemap.put("lx",-1);
+        messagemap.put("ly",-1);
+        messagemap.put("rx",1);
+        messagemap.put("ry",1);
+        JSONObject jsonObject = new JSONObject(messagemap);
+        messages = new ArrayList<Message>();
+        Log.d("TEST","开始查询");
+        Log.d("TEST",jsonObject.toString());
+        HttpTool httpTool = new HttpTool("GetMessages",jsonObject);
+        String result = null;
+        try {
+            result = httpTool.jsonResult();
+            JSONObject messageUnion = new JSONObject(result);
+            int count = messageUnion.getInt("count");
+            for (int i = 0;i < count;i ++){
+                JSONObject jsonObject1 = messageUnion.getJSONObject("message"+i);
+                Message message1 = null;
+                try {
+                    message1 = new Message(jsonObject1);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                messages.add(message1);
+                //Log.d("TEST",jsonObject1.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    public void getUsers() throws JSONException, IOException {
+        //ArrayList<User> users = new ArrayList<User>();
+        Log.d("USER",""+messages.size());
+        for (int i = 0;i < messages.size();i ++){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("userId",messages.get(i).getPublisherId());
+            HttpTool httpTool = new HttpTool("GetUserById",jsonObject);
+            String result = httpTool.jsonResult();
+            JSONObject user = new JSONObject(result);
+            Log.d("USER",user.toString());
+            User user1 = new User(jsonObject);
+            users.add(user1);
+        }
     }
 }

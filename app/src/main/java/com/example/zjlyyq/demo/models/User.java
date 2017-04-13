@@ -9,6 +9,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 
 /**
@@ -27,6 +30,18 @@ public class User {
     private long register_time;
     private int privilege;
     private static Context mContext;
+    public User(JSONObject object) throws JSONException {
+        //{"password":"296675700","userPhoto":null,"sex":0,"userPhone":0,"privilege":0,"userName":"zjl","userId":26,"email_adress":"2868989685@163.com","register_time":0,"age":0}
+        this.userId = object.getInt("userId");
+        //sex = object.getInt("sex");
+        //age = object.getInt("age");
+        //register_time = object.getLong("");
+        //userPhoto = object.getString("userPhoto");
+        //this.userName = object.getString("userName");
+        //userPhone = -1;
+        //privilege = 0;
+        //this.mContext = context;
+    }
     public User(Context context){
         userId = -1;
         sex = 0;

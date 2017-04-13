@@ -7,6 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -31,6 +37,21 @@ public class Message {
         favourTimes  = 0;
         transmitTimes = 0;
         commentTimes = 0;
+    }
+//{"favourTimes":0,"transmitTimes":0,"publish_time":"2017-04-13 13:17:20.0","x":0,"y":0,"messageId":13,"commentTimes":0,"text":"ghu","userId":25}
+    public Message(JSONObject jsonObject) throws JSONException, ParseException {
+        messageId = jsonObject.getInt("messageId");
+        publisherId=jsonObject.getInt("userId");
+        text = jsonObject.getString("text");
+        String date = jsonObject.getString("publish_time");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        publishDate = sdf.parse(date).getTime();
+        Log.d("TEST",""+publishDate);
+        x = jsonObject.getInt("x");
+        y = jsonObject.getInt("y");
+        transmitTimes = jsonObject.getInt("transmitTimes");
+        favourTimes = jsonObject.getInt("favourTimes");
+        commentTimes = jsonObject.getInt("commentTimes");
     }
     public Message(Cursor cursor){
         messageId = cursor.getInt(0);

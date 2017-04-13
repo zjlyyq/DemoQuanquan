@@ -53,6 +53,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     public MySQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE_USERINFO_SQL);
@@ -62,7 +63,6 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_COMMENTS_SQL);
         sqLiteDatabase.execSQL(CREATE_TABLE_REALATIONSHIP_SQL);
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 

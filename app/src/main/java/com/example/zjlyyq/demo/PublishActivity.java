@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.AdapterView;
@@ -29,11 +30,24 @@ import com.example.zjlyyq.demo.models.Images;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.MessageImage;
 import com.example.zjlyyq.demo.models.MySQLiteOpenHelper;
+import com.example.zjlyyq.demo.models.User;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PublishActivity extends AppCompatActivity implements View.OnClickListener{
     private static final int GET_PHOTO = 2;
@@ -97,18 +111,15 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
                 message.setText(emotionTextView.getText().toString());
                 message.setPublishDate(new Date().getTime());
                 message.setPublisherId(user_id);
-                //将message插入数据库后返回messageid，用于插入messageImages数据表
-                int message_id = message.insertIntoDatabase();
-                for (int i = 0;i < photos.size();i ++){
-                    Images images = new Images(PublishActivity.this);
-                    images.setBitmap(photos.get(i));
-                    //将images插入数据库后返回image_id，用于插入messageImages数据表
-                    int image_id = images.insertIntoDatabase();
-                    if(image_id != -1 && message_id != -1){
-                        MessageImage messageImage = new MessageImage(PublishActivity.this,message_id,image_id);
-                        messageImage.insertIntoDatabase();
+                message.setX(0);
+                message.setY(0);
+                Log.d("TEST","startinsert");
+                new Thread(){
+                    @Override
+                    public void run() {
+                        int message_id = insertMessage();
                     }
-                }
+                }.start();
                 PublishActivity.this.finish();
             }
         });
@@ -191,5 +202,74 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         return view;
+    }
+    public int insertMessage(){
+        Map<String,Object> messagemap = new HashMap<String,Object>();
+        Log.d("TEST","startinsert");
+        messagemap.put("text",message.getText());
+        messagemap.put("userId",message.getPublisherId());
+        messagemap.put("publish_time",message.getPublishDate());
+        messagemap.put("x",message.getX());
+        messagemap.put("y",message.getY());
+        messagemap.put("transmitTimes",message.getTransmitTimes());
+        messagemap.put("commentTimes",message.getCommentTimes());
+        messagemap.put("favourTimes",message.getFavourTimes());
+        message.setTransmitTimes(0);
+        message.setCommentTimes(0);
+        message.setFavourTimes(0);
+        //JSONObject jsonObject = new JSONObject(messagemap);
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(messagemap.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("TEST",jsonObject.toString());
+        try {
+            String u = "http://192.168.199.115:8080/Quanquan/InsertMessage";
+            URL url = new URL(u);
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();conn.setRequestProperty("accept", "*/*");
+            //System.out.println("连接");
+            //Log.d("TEST","连接成功");
+            // 发送POST请求必须设置如下两行
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            PrintWriter out = null;
+            // 获取URLConnection对象对应的输出流
+            Log.d("TEST","获取URLConnection对象对应的输出流");
+            out = new PrintWriter(conn.getOutputStream());
+            Log.d("TEST","获取URLConnection对象对应的输出流success");
+            // 发送请求参数
+            out.print("json="+jsonObject.toString());
+            // flush输出流的缓冲
+            out.flush();
+            BufferedReader in;
+            // 定义BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            String result = "";
+            while ((line = in.readLine()) != null)
+            {
+                result += line;
+            }
+            Log.d("TEST",result);
+            int message_id = 0;
+            if (result.equals("error")){
+                message_id = -2;
+                Log.d("TEST",""+message_id);
+            }else {
+                message_id = Integer.parseInt(result);
+                Log.d("TEST",""+message_id);
+            }
+            out.close();
+            in.close();
+            return message_id;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -2;
     }
 }

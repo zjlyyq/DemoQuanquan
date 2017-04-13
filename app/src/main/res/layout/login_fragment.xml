@@ -1,61 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/login_background">
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/selectLine"
+        android:layout_gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/login_cencel"
+            android:text="关闭"
+            android:layout_gravity="start"
+            android:background="#ffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/return_to_register"
+            android:layout_gravity="end"
+            android:text="注册"
+            android:background="#ffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+    <EditText
+        android:clickable="false"
+        android:alpha="0"
+        android:id="@+id/emptyline"
+        android:layout_below="@+id/selectLine"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
     <LinearLayout
-        android:layout_gravity="center_vertical"
+        android:id="@+id/secongline"
+        android:layout_below="@+id/emptyline"
+        android:layout_gravity="center"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <LinearLayout
-            android:orientation="horizontal"
+
+        <com.example.zjlyyq.demo.ClearEditText
+            android:layout_margin="10dp"
+            android:hint="手机号/邮箱"
+            android:id="@+id/login_username_et"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:padding="10dp"
-                android:gravity="right"
-                android:text="用户名:"
-                android:textColor="#ffffff"
-                android:textSize="15dp"
-                android:layout_weight="0.3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" />
-            <EditText
-                android:id="@+id/login_username_et"
-                android:paddingRight="50dp"
-                android:layout_weight="0.7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
+            android:layout_height="wrap_content" />
+        <com.example.zjlyyq.demo.ClearEditText
+            android:id="@+id/login_passwd_et"
+            android:layout_margin="10dp"
+            android:hint="密码"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:padding="10dp"
-                android:text="密码:"
-                android:textColor="#ffffff"
-                android:textSize="15dp"
-                android:layout_weight="0.3"
-                android:layout_width="0dp"
-                android:gravity="right"
-                android:layout_height="wrap_content" />
-            <EditText
-                android:id="@+id/login_passwd_et"
-                android:paddingRight="50dp"
-                android:layout_weight="0.7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+            android:layout_height="wrap_content" />
     </LinearLayout>
     <Button
         android:id="@+id/login_bt"
-        android:layout_width="100dp"
+        android:layout_below="@+id/secongline"
         android:text="登录"
-        android:textSize="20dp"
-        android:layout_gravity="bottom|right"
-        android:background="@drawable/login_background"
         android:textColor="#ffffff"
-        android:layout_height="40dp" />
-</FrameLayout>
+        android:alpha="0.5"
+        android:clickable="false"
+        android:layout_margin="30dp"
+        android:layout_marginStart="20dp"
+        android:background="#de7f1a"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</RelativeLayout>
