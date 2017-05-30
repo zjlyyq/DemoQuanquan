@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.GridView;
@@ -41,7 +42,7 @@ public class MessageDetail extends AppCompatActivity {
     private User user;
     private String messagejson = "";
     ArrayList<String> imageUrls;
-
+    private RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +65,7 @@ public class MessageDetail extends AppCompatActivity {
         timeText = (TextView)findViewById(R.id.publish_time);
         gridView = (GridView)findViewById(R.id.gridview);
         contentText = (TextView)findViewById(R.id.talk);
+        recyclerView = (RecyclerView)findViewById(R.id.comment_recycle);
         initToolbar();
     }
 
@@ -80,8 +82,6 @@ public class MessageDetail extends AppCompatActivity {
                 user = new User(userJson);
                 imageUrls = new ArrayList<String>();
                 imageUrls = MessageTools.getImagesById(message_id);
-
-
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -93,6 +93,7 @@ public class MessageDetail extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             if (user!=null){
                 Glide.with(mContext).load(user.getUserPhoto()).into(circleImageView);
+                Log.d("FANS","头像："+user.getUserPhoto());
                 nickName.setText(user.getUserName());
             }
             if (message!=null){

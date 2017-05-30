@@ -65,6 +65,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TooManyListenersException;
 
+import static com.example.zjlyyq.demo.R.color.bright_foreground_disabled_material_dark;
+import static com.example.zjlyyq.demo.R.color.clickBackground;
 import static com.example.zjlyyq.demo.R.id.default_activity_button;
 import static com.example.zjlyyq.demo.R.id.myMessage;
 
@@ -80,6 +82,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     private ListView listView;
     private ArrayList<Message> messages;
     private ArrayList<User> users;
+    public static ArrayList<User> fans;
     public static String imageUrl = "null";
     ArrayList<ArrayList<String>> imageUrlss;
     ArrayList<String> imageUrls;
@@ -96,6 +99,8 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     NavigationView navigationView;
     DrawerLayout drawerLayout;
     String userInfo = "";
+    ArrayList<Integer> favorMessageIds;
+    public static ArrayList<Integer> fansIds;
     private int userId;
     private AMapLocationClient mLocationClient = null;//定位发起端
     private AMapLocationClientOption mLocationOption = null;//定位参数
@@ -570,6 +575,15 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            //获得所有粉丝id
+            try {
+                getFansId();
+                getFans();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return null;
         }
         @Override
@@ -639,7 +653,48 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             users.add(user1);
         }
     }
-
+    public void getFans() throws JSONException, IOException {
+        //ArrayList<User> users = new ArrayList<User>();
+        Log.d("USER",""+messages.size());
+        fans = null;
+        fans = new ArrayList<User>();
+        for (int i = 0;i < fansIds.size();i ++){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("userId",fansIds.get(i));
+            HttpTool httpTool = new HttpTool("GetUserById",jsonObject);
+            String result = httpTool.jsonResult();
+            JSONObject user = new JSONObject(result);
+            Log.d("USER",user.toString());
+            User user1 = new User(user);
+            Log.d("TESTUSER",""+user1.getUserId());
+            fans.add(user1);
+        }
+    }
+    public void getFansId() throws JSONException, IOException {
+        fansIds = new ArrayList<Integer>();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("userId",userId);
+        HttpTool httpTool = new HttpTool("GetRelationsbyUserId",jsonObject);
+        String result = httpTool.jsonResult();
+        Log.d("FANS",result);
+        if (result.equals("error")){
+            Log.d("FANS","对不起，还没有粉丝");
+            return;
+        }
+        JSONObject fansIdsJson = new JSONObject(result);
+        for(int i = 0;i < 10000;i ++){
+            try {
+                int user2Id = fansIdsJson.getInt(""+i);
+                fansIds.add(user2Id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                i = 100000;
+            }
+        }
+        if (fansIds.size() > 0){
+            Log.d("FANS","有粉丝");
+        }
+    }
     /**
      * 获取当前用户信息
      */
@@ -721,6 +776,20 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                         intent.putExtra("myId",userId);
                         startActivity(intent);
                         break;
+                    case R.id.name:
+                        Toast.makeText(getActivity(),"name is clicked",Toast.LENGTH_LONG).show();
+                        Intent intent1 = new Intent(getActivity(),MessageDetail.class);
+                        intent1.putExtra("messageId",messages.get(pos).getMessageId());
+                        startActivity(intent1);
+                        break;
+                    case R.id.bt_comment:
+                        Intent intent2 = new Intent(getActivity(),MessageDetail.class);
+                        intent2.putExtra("messageId",messages.get(pos).getMessageId());
+                        startActivity(intent2);
+                        break;
+                    case R.id.bt_favor:
+                        v.setBackgroundColor(Color.GREEN);
+                        break;
                     default:
                         break;
                 }
@@ -741,7 +810,9 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                     intent.putExtra("userId",userId);
                     startActivity(intent);
                     break;
-                case R.id.myMessage:
+                case R.id.myfans:
+                    Intent intent1 = new Intent(getActivity(),FansActivity.class);
+                    startActivity(intent1);
                     break;
                 default:
                     return true;

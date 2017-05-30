@@ -116,7 +116,7 @@
                         android:layout_height="match_parent">
                         <ImageButton
                             android:scaleType="fitCenter"
-                            android:id="@+id/btSelect"
+                            android:id="@+id/bt_favor"
                             android:layout_gravity="center_horizontal"
                             android:layout_width="15dp"
                             android:layout_height="15dp"
@@ -149,6 +149,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                         <ImageButton
+                            android:id="@+id/bt_comment"
                             android:scaleType="fitCenter"
                             android:layout_width="15dp"
                             android:layout_height="15dp"

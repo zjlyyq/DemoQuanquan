@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="top_bg_color">#ffffff</color>
     <color name="red">#ff0000</color>
+    <color name="clickBackground">#f25608</color>
 </resources>

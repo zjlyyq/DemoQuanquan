@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -83,6 +84,8 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
             holder.imageView=(ImageView)convertView.findViewById(R.id.header);
             holder.gridView = (GridView) convertView.findViewById(R.id.gridview);
             holder.publish_time = (TextView)convertView.findViewById(R.id.publish_time);
+            holder.bt_comment = (ImageButton)convertView.findViewById(R.id.bt_comment);
+            holder.bt_favor = (ImageButton)convertView.findViewById(R.id.bt_favor);
             convertView.setTag(holder);
         }else {
             holder = (ViewHolder)convertView.getTag();
@@ -111,6 +114,12 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
 
         //设置用户名
         holder.textView.setText(user.getUserName());
+        holder.textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.click(v,position);
+            }
+        });
         holder.textView.setTypeface(tf);
         //holder.textView.setOnClickListener(this);
         //设置内容主体
@@ -119,6 +128,18 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
         //设置图片
         GalikGridViewAdapter adapter = new GalikGridViewAdapter(this.mContext,imageUrlss.get(position));
         holder.gridView.setAdapter(adapter);
+        holder.bt_favor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.click(v,position);
+            }
+        });
+        holder.bt_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.click(v,position);
+            }
+        });
         return convertView;
     }
     @Override
@@ -138,6 +159,8 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
         TextView textView;
         TextView textView2;
         GridView gridView;
+        ImageButton bt_favor;
+        ImageButton bt_comment;
     }
 
 }

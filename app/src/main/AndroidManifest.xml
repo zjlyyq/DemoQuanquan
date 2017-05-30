@@ -60,7 +60,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".MessageDetail" />
-        <activity android:name=".MyMessageActivity"></activity>
+        <activity android:name=".MyMessageActivity" />
+        <activity android:name=".FansActivity"></activity>
     </application>
 
 </manifest>

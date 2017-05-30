@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_weight="0.2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent">
+        <com.example.zjlyyq.demo.Widget.CircleImageView
+            android:layout_gravity="center"
+            android:id="@+id/fan_head"
+            android:src="@drawable/touxiang"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:paddingTop="12dp"
+        android:layout_weight="0.8"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/fan_name"
+            android:text="用户名"
+            android:textSize="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/fans_sex"
+            android:src="@mipmap/ladyboy"
+            android:layout_width="20dp"
+            android:layout_height="20dp" />
+    </LinearLayout>
+
+</LinearLayout>

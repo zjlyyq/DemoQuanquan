@@ -10,7 +10,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.zjlyyq.demo.R;
+import com.example.zjlyyq.demo.fragment.MessageFragment;
 import com.example.zjlyyq.demo.models.User;
 
 import java.util.ArrayList;
@@ -42,7 +44,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         com.example.zjlyyq.demo.models.Message message = messages.get(position);
         holder.textView.setText(user.getUserName());
         holder.textView2.setText(message.getText());
-        holder.imageView.setImageResource(R.drawable.touxiang4);
+        //holder.imageView.setImageResource(R.drawable.touxiang4);
+        Glide.with(mContext).load(users.get(position).getUserPhoto()).into(holder.imageView);
         GalikGridViewAdapter adapter = new GalikGridViewAdapter(this.mContext,imageUrlss.get(position));
         holder.gridView.setAdapter(adapter);
     }
