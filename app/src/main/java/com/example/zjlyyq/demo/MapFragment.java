@@ -1,19 +1,29 @@
 package com.example.zjlyyq.demo;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ListPopupWindow;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -35,48 +46,45 @@ import com.amap.api.maps.MapView;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Marker;
+import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.bumptech.glide.Glide;
 import com.example.zjlyyq.demo.Adapter.ListViewAdapter;
+import com.example.zjlyyq.demo.Widget.CircleImageView;
 import com.example.zjlyyq.demo.models.Message;
-import com.example.zjlyyq.demo.models.MessageUnion;
 import com.example.zjlyyq.demo.models.User;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TooManyListenersException;
+
+import static com.example.zjlyyq.demo.R.id.default_activity_button;
+import static com.example.zjlyyq.demo.R.id.myMessage;
 
 /**
  * Created by jialuzhang on 2017/3/19.
  */
 
-public class MapFragment extends Fragment implements LocationSource,AMapLocationListener {
+public class MapFragment extends Fragment implements LocationSource,AMapLocationListener,AMap.OnMarkerDragListener,AMap.OnMarkerClickListener,AMap.OnInfoWindowClickListener{
     private MapView mapView = null;
     private ImageButton user_bt;
     private AMap aMap = null;
     private ImageButton publish_button;
-    private UiSettings mUiSettings;//定义一个UiSettings对象
     private ListView listView;
     private ArrayList<Message> messages;
     private ArrayList<User> users;
-    private MessageUnion messageUnion;
-    private ListViewAdapter mListViewAdapter;
-
-
-    //private SQLiteDatabase db;
-    //private ArrayList<ArrayList<HashMap<String,Object>>> mArrayList;
+    public static String imageUrl = "null";
+    ArrayList<ArrayList<String>> imageUrlss;
+    ArrayList<String> imageUrls;
+    CircleImageView headImage;        //用户头像
+    TextView userName;               //用户名
     LinearLayout opt;
     ImageButton btSelect;
     ImageButton btTalk;
@@ -84,12 +92,21 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     Bitmap baseBitmap;
     Canvas canvas;
     Paint paint;
+    Toolbar toolbar;
+    NavigationView navigationView;
+    DrawerLayout drawerLayout;
+    String userInfo = "";
     private int userId;
     private AMapLocationClient mLocationClient = null;//定位发起端
     private AMapLocationClientOption mLocationOption = null;//定位参数
     private LocationSource.OnLocationChangedListener mListener = null;//定位监听器
     //标识，用于判断是否只显示一次定位信息和用户重新定位
     private boolean isFirstLoc = true;
+    /**
+     *绘制动态图标相关
+     */
+    private static ArrayList<LatLng> latLngs;
+    private static ArrayList<Marker> markers;
     public static MapFragment newInstance(int user_id){
         Bundle argc = new Bundle();
         argc.putInt("userId",user_id);
@@ -102,16 +119,16 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         super.onCreate(savedInstanceState);
         Bundle argc = getArguments();
         userId = argc.getInt("userId");
-        Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
-        //获取状态的集合
-        messageUnion = MessageUnion.getInstance(getActivity());
+        //Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         users = new ArrayList<User>();
+        imageUrls = new ArrayList<String>();
+        imageUrlss = new ArrayList<ArrayList<String>>();
     }
 
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_main,container,false);
+        View view = inflater.inflate(R.layout.mapmain,container,false);
         toFindEverything(view);
         initMap();
         mapView.onCreate(savedInstanceState);
@@ -142,7 +159,28 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             // 是否可触发定位并显示定位层
             aMap.setMyLocationEnabled(true);
         }
+        //初始化定位
         initLocation();
+    }
+    private void MarkerDraw(){
+        Log.d("Marker","size = " + "开始绘图");
+        for (int i = 0;i < latLngs.size();i ++){
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLngs.get(i));
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(),R.mipmap.user3)));
+            //markerOptions.setFlat(true);
+            markerOptions.visible(true);
+            markerOptions.draggable(true);
+            markerOptions.title("用户："+users.get(i).getUserName()+"\n发布了状态"+messages.get(i).getMessageId()+":");
+            markerOptions.snippet(messages.get(i).getText());
+            Log.d("Marker","i = "+i+latLngs.get(i).toString());
+            Marker marker = aMap.addMarker(markerOptions);
+            markers.add(marker);
+            marker.showInfoWindow();
+        }
+        aMap.setOnMarkerDragListener(this);
+        aMap.setOnMarkerClickListener(this);
+        aMap.setOnInfoWindowClickListener(this);
     }
     private void initLocation() {
         //初始化定位
@@ -230,21 +268,18 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
+        //Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(),"OnResume",Toast.LENGTH_LONG).show();
+        new GetUserInfoAsyncTask().execute();
         aMap.setMapType(AMap.MAP_TYPE_NIGHT);
         mapView.onResume();
-        //messages = messageUnion.getMessages();
         new MyAsyncTask().execute();
-        //com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,getActivity().getSupportFragmentManager());
-        //listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("TEST2","开始跳转1");
-                Intent intent = new Intent(getActivity(),MessageDetailActivity.class);
-                Message message = messages.get(position);
-                intent.putExtra("MESSAGEID", message.getMessageId());
-                Log.d("TEST2","开始跳转");
+                Intent intent = new Intent(getActivity(),Home.class);
+                intent.putExtra("userId",messages.get(position).getPublisherId());
+                intent.putExtra("myId",userId);
                 startActivity(intent);
             }
         });
@@ -256,7 +291,6 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 startActivity(intent);
             }
         });
-
         user_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -379,6 +413,12 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 opt.setVisibility(View.INVISIBLE);
             }
         });
+        if (!imageUrl.equals("null")){
+            Glide.with(getActivity()).load(imageUrl).into(headImage);
+        }else {
+            headImage.setImageResource(R.drawable.touxiang7);
+        }
+        navigationView.setNavigationItemSelectedListener(new MyNavigationViewListener());
     }
 
     @Override
@@ -406,6 +446,18 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         mapView.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d("MENU","START");
+        inflater.inflate(R.menu.toolbarmenu,menu);
+        Log.d("MENU","caidanchangli");
+    }
+
+    /**
+     * 初始化
+     * @param view
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toFindEverything(View view){
         publish_button = (ImageButton) view.findViewById(R.id.publish_button);
         user_bt = (ImageButton)view.findViewById(R.id.userHome_bt);
@@ -415,7 +467,98 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         opt = (LinearLayout)view.findViewById(R.id.options);
         btSelect = (ImageButton) view.findViewById(R.id.btSelect);
         btTalk = (ImageButton)view.findViewById(R.id.btTalk);
+        toolbar = (Toolbar)view.findViewById(R.id.main_toolbar);
+
+        drawerLayout = (DrawerLayout)view.findViewById(R.id.drawlayout);
+        AppCompatActivity appCompatActivity = (AppCompatActivity)getActivity();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        setHasOptionsMenu(true);
+        appCompatActivity.setSupportActionBar(toolbar);
+        if (appCompatActivity.getSupportActionBar() != null){
+            Log.d("MENU","have");
+            appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            appCompatActivity.getSupportActionBar().setHomeAsUpIndicator(R.mipmap.sanhengxian);
+        }
+        navigationView = (NavigationView)view.findViewById(R.id.nav);
+
+        View v = navigationView.getHeaderView(0);
+        headImage = (CircleImageView)v.findViewById(R.id.userPhoto);    //侧边栏头像
+
+        userName = (TextView)v.findViewById(R.id.userNameHead);
+        headImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),EditActivity.class);
+                intent.putExtra("userId",userId);
+                startActivity(intent);
+            }
+        });
+        headImage.setImageResource(R.drawable.touxiang7);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                break;
+            default:
+                return true;
+        }
+        return true;
+    }
+
+    /**
+     * 光标拖拽
+     *
+     */
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        marker.getPosition();
+        LatLng latLng = marker.getPosition();
+        marker.setPosition(latLng);
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+       // Toast.makeText(getActivity(),"光标被点击",Toast.LENGTH_LONG).show();
+        marker.showInfoWindow();
+        return true;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        int index = 0;
+        for (int i = 0;i < markers.size();i ++){
+            if (markers.get(i).getSnippet().equals(marker.getSnippet())){
+                index = i;
+                Intent intent = new Intent(getActivity(),MessageDetail.class);
+                intent.putExtra("messageId",messages.get(i).getMessageId());
+                startActivity(intent);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 获取所有状态和用户信息
+     */
     private class MyAsyncTask extends AsyncTask<Void,Void,Void>{
         @Override
         protected Void doInBackground(Void... voids) {
@@ -429,25 +572,29 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(Void aVoid) {
-            com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,users,getActivity().getSupportFragmentManager());
-            listView.setAdapter(adapter);
+            MarkerDraw();
+            Log.d("Marker","开始绘图");
+            new MyAsynysGetimages().execute(0);
         }
     }
+    /**
+     * 获取所有状态
+     */
     public  void getMessages(){
+        markers = new ArrayList<Marker>();
+        latLngs = new ArrayList<LatLng>();
         Map<String,Object> messagemap = new HashMap<String,Object>();
-        messagemap.put("lx",-1);
-        messagemap.put("ly",-1);
-        messagemap.put("rx",1);
-        messagemap.put("ry",1);
+        messagemap.put("lx",-1.0);
+        messagemap.put("ly",-1.0);
+        messagemap.put("rx",180.0);
+        messagemap.put("ry",180.0);
         JSONObject jsonObject = new JSONObject(messagemap);
+        messages = null;
         messages = new ArrayList<Message>();
-        Log.d("TEST","开始查询");
-        Log.d("TEST",jsonObject.toString());
         HttpTool httpTool = new HttpTool("GetMessages",jsonObject);
-        String result = null;
+        String result = "";
         try {
             result = httpTool.jsonResult();
             JSONObject messageUnion = new JSONObject(result);
@@ -462,8 +609,11 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+                LatLng latLng = new LatLng(message1.getY(),message1.getX());
+                Log.d("MarkerPosition",""+message1.getX() +":" + message1.getY());
+                Log.d("Marker","i"+i+latLng.toString());
+                latLngs.add(latLng);
                 messages.add(message1);
-                //Log.d("TEST",jsonObject1.toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -474,15 +624,129 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     public void getUsers() throws JSONException, IOException {
         //ArrayList<User> users = new ArrayList<User>();
         Log.d("USER",""+messages.size());
+        users = null;
+        users = new ArrayList<User>();
         for (int i = 0;i < messages.size();i ++){
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId",messages.get(i).getPublisherId());
             HttpTool httpTool = new HttpTool("GetUserById",jsonObject);
+            //JSONObject object = httpTool.jsonResult();
             String result = httpTool.jsonResult();
             JSONObject user = new JSONObject(result);
             Log.d("USER",user.toString());
-            User user1 = new User(jsonObject);
+            User user1 = new User(user);
+            Log.d("TESTUSER",""+user1.getUserId());
             users.add(user1);
+        }
+    }
+
+    /**
+     * 获取当前用户信息
+     */
+    private class GetUserInfoAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Map<String,Object> userMap = new HashMap<String,Object>();
+            userMap.put("userId",userId);
+            JSONObject json = new JSONObject(userMap);
+            HttpTool httpTool = new HttpTool("GetUserById",json);
+            try {
+                userInfo = httpTool.jsonResult();
+                Log.d("TTTTT",userInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            try {
+                JSONObject jsonObject = new JSONObject(userInfo);
+                imageUrl = jsonObject.getString("imageUrl");
+                Log.d("TTTTT",imageUrl);
+                if(!imageUrl.equals("null")){
+                    Glide.with(getActivity()).load(imageUrl).into(headImage);
+                }else{
+                    headImage.setImageResource(R.drawable.touxiang7);
+                }
+                String username = jsonObject.getString("userName");
+                userName.setText(username);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**获取所有状态的图片
+     *
+     */
+    class MyAsynysGetimages extends AsyncTask<Integer,Void,Void>{
+        String result = "";
+        @Override
+        protected Void doInBackground(Integer... params) {
+            imageUrlss = null;
+            imageUrlss = new ArrayList<ArrayList<String>>();
+            for(int i = 0; i < messages.size();i ++){
+                Map<String,Object> messageMap = new HashMap<String,Object>();
+                messageMap.put("messageId",messages.get(i).getMessageId());
+                JSONObject jsonObject = new JSONObject(messageMap);
+                HttpTool httpTool = new HttpTool("GetImagesByMessageId",jsonObject);
+                try {
+                    result = httpTool.jsonResult();
+                    imageUrls = null;
+                    imageUrls = new ArrayList<String>();
+                    JSONObject jsonObject1 = new JSONObject(result);
+                    int count = jsonObject1.getInt("count");
+                    for (int j = 0;j < count;j ++){
+                        String url = jsonObject1.getString("imageUrl"+j);
+                        imageUrls.add(url);
+                    }
+                    imageUrlss.add(imageUrls);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return  null;
+        }
+        ListViewAdapter.Callback callback = new ListViewAdapter.Callback() {
+            @Override
+            public void click(View v,int pos) {
+                switch (v.getId()){
+                    case R.id.header:
+                        Intent intent = new Intent(getActivity(),Home.class);
+                        intent.putExtra("userId",messages.get(pos).getPublisherId());
+                        intent.putExtra("myId",userId);
+                        startActivity(intent);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            com.example.zjlyyq.demo.Adapter.ListViewAdapter adapter = new com.example.zjlyyq.demo.Adapter.ListViewAdapter(getActivity(),messages,users,getActivity().getSupportFragmentManager(),imageUrlss,callback);
+            listView.setAdapter(adapter);
+        }
+    }
+    class MyNavigationViewListener implements NavigationView.OnNavigationItemSelectedListener {
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.Dongtai:
+                    Intent intent = new Intent(getActivity(),Home.class);
+                    intent.putExtra("userId",userId);
+                    startActivity(intent);
+                    break;
+                case R.id.myMessage:
+                    break;
+                default:
+                    return true;
+            }
+            return true;
         }
     }
 }

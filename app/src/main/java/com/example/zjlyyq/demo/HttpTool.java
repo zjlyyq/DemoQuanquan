@@ -19,7 +19,8 @@ import java.net.URL;
 public class HttpTool {
     private  String url;
     private  JSONObject jsonObject;
-
+    public static String BASE_URL = "http://192.168.199.208";
+    //public static String BASE_URL = "http://192.168.43.38";
     public HttpTool(String url,JSONObject jsonObject){
          this.jsonObject = jsonObject;
          this.url = url;
@@ -30,7 +31,9 @@ public class HttpTool {
         // 定义BufferedReader输入流来读取URL的响应
         PrintWriter out = null;
         try {
-            String u = "http://192.168.199.115:8080/Quanquan/" + url;
+            String u = BASE_URL + ":8080/Quanquan/" + url;
+            //Log.d("TEST", "url = " + u);
+           // Log.d("TEST", "json = " + jsonObject.toString());
             URL url = new URL(u);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("accept", "*/*");
@@ -44,7 +47,6 @@ public class HttpTool {
             Log.d("TEST", "获取URLConnection对象对应的输出流success");
             // 发送请求参数
             out.print("json=" + jsonObject.toString());
-            //out.print("email="+jsonObject.getString("email_adress"));
             // flush输出流的缓冲
             out.flush();
             in = new BufferedReader(
@@ -59,15 +61,15 @@ public class HttpTool {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            return "服务器错误";
         } finally {
             if (out != null) {
                 out.close();
             }
-            out.close();
             if (in != null) {
                 in.close();
             }
         }
-        return null;
+        return "服务器错误";
     }
 }

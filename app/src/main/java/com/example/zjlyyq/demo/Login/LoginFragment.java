@@ -1,8 +1,11 @@
 package com.example.zjlyyq.demo.Login;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.zjlyyq.demo.HttpTool;
 import com.example.zjlyyq.demo.MapFragment;
 import com.example.zjlyyq.demo.R;
 import com.example.zjlyyq.demo.models.User;
@@ -32,6 +36,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by jialuzhang on 2017/3/19.
  */
@@ -42,7 +48,9 @@ public class LoginFragment extends Fragment {
     private Button login_bt;
     private static int user_id = -1;
     static int loginBt = -2;
-
+    private static final String SharedPreferencesFileName = "userInfo";
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +64,21 @@ public class LoginFragment extends Fragment {
         login_username_et = (EditText)view.findViewById(R.id.login_username_et);
         login_passwd_et = (EditText)view.findViewById(R.id.login_passwd_et);
         login_bt = (Button)view.findViewById(R.id.login_bt);
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x123){
+                    sharedPreferences = getActivity().getSharedPreferences(SharedPreferencesFileName, MODE_PRIVATE);
+                    editor = sharedPreferences.edit();
+                    editor.putInt("userId",user_id);
+                    editor.commit();
+                    MapFragment mapFragment = MapFragment.newInstance(user_id);
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = fm.beginTransaction();
+                    transaction.replace(R.id.fragment_container,mapFragment).commit();
+                }
+            }
+        };
         login_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,21 +87,19 @@ public class LoginFragment extends Fragment {
                     public void run() {
                         try {
                             loginCheck();
+                            if(user_id == -2){
+                                Toast.makeText(getActivity(),"用户名或密码不正确",Toast.LENGTH_LONG).show();
+                            }
+                            else if(user_id > 0){
+                                Message msg = new Message();
+                                msg.what = 0x123;
+                                handler.sendMessage(msg);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }.start();
-                if(user_id == -2){
-                    Toast.makeText(getActivity(),"用户名或密码不正确",Toast.LENGTH_LONG).show();
-                }
-                else if(user_id > 0){
-                    //Log.d("TEST2","login succeed:" + user_id);
-                    MapFragment mapFragment = MapFragment.newInstance(user_id);
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fm.beginTransaction();
-                    transaction.replace(R.id.fragment_container,mapFragment).commit();
-                }
             }
         });
         login_username_et.setOnTouchListener(new View.OnTouchListener() {
@@ -120,8 +141,8 @@ public class LoginFragment extends Fragment {
         PrintWriter out = null;
         // 获取URLConnection对象对应的输出流
         try {
-            String u = "http://192.168.199.115:8080/Quanquan/LoginCheck";
-            URL url = new URL(u);
+            String serverUrl = HttpTool.BASE_URL + ":8080/Quanquan/LoginCheck";
+            URL url = new URL(serverUrl);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();conn.setRequestProperty("accept", "*/*");
             System.out.println("连接");
             Log.d("TEST","连接成功");
@@ -133,8 +154,6 @@ public class LoginFragment extends Fragment {
             Log.d("TEST","获取URLConnection对象对应的输出流success");
             // 发送请求参数
             out.print("json="+jsonObject.toString());
-            //out.print("email="+jsonObject.getString("email_adress"));
-            // flush输出流的缓冲
             out.flush();
             in = new BufferedReader(
                     new InputStreamReader(conn.getInputStream()));
@@ -147,10 +166,8 @@ public class LoginFragment extends Fragment {
             Log.d("TEST",result);
             if (result.equals("用户名或密码不正确")){
                 user_id = -2;
-                Log.d("TEST",""+user_id);
             }else {
                 user_id = Integer.parseInt(result);
-                Log.d("TEST",""+user_id);
             }
             out.close();
             in.close();
@@ -163,7 +180,6 @@ public class LoginFragment extends Fragment {
             if (out != null){
                 out.close();
             }
-            out.close();
             if (in != null){
                 in.close();
             }

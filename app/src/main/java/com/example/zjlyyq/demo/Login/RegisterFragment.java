@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,6 +18,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONObject;
+
+import com.example.zjlyyq.demo.HttpTool;
 import com.example.zjlyyq.demo.MainActivity;
 import com.example.zjlyyq.demo.MapFragment;
 import com.example.zjlyyq.demo.R;
@@ -50,6 +54,7 @@ public class RegisterFragment extends Fragment {
     private EditText passwd_et;
     private EditText repter_et;
     private Button commit_bt;
+    private static String BASE_URL = "172.15.22.183";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +74,16 @@ public class RegisterFragment extends Fragment {
         commit_bt = (Button) view.findViewById(R.id.commt_bt);
         FragmentManager fm = getActivity().getSupportFragmentManager();
         final FragmentTransaction transaction = fm.beginTransaction();
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x123){
+                    MapFragment mapFragment = MapFragment.newInstance(user_id);
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    fm.beginTransaction().replace(R.id.fragment_container,mapFragment).commit();
+                }
+            }
+        };
         commit_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,16 +92,17 @@ public class RegisterFragment extends Fragment {
                     public void run() {
                         //super.run();
                         registerCheck();
+                        if (user_id == -2){
+                            Toast.makeText(getActivity(),"此邮箱已经注册过，请直接登录",Toast.LENGTH_LONG).show();
+                        }else if(user_id > 0){
+                            editor.putInt("userId",user_id);
+                            editor.commit();
+                            Message msg = new Message();
+                            msg.what = 0x123;
+                            handler.sendMessage(msg);
+                        }
                     }
                 }.start();
-
-                if (user_id == -2){
-                    Toast.makeText(getActivity(),"此邮箱已经注册过，请直接登录",Toast.LENGTH_LONG).show();
-                }else if(user_id > 0){
-                    MapFragment mapFragment = MapFragment.newInstance(user_id);
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    fm.beginTransaction().replace(R.id.fragment_container,mapFragment).commit();
-                }
             }
 
         });
@@ -119,7 +135,7 @@ public class RegisterFragment extends Fragment {
         JSONObject jsonObject = new JSONObject(usermap);
         System.out.println("json = "+jsonObject.toString());
         try {
-            String u = "http://192.168.199.115:8080/Quanquan/RegisterCheck";
+            String u = HttpTool.BASE_URL + ":8080/Quanquan/RegisterCheck";
             URL url = new URL(u);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();conn.setRequestProperty("accept", "*/*");
             System.out.println("连接");

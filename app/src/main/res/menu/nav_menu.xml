@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/myMessage"
+            android:title="我的消息"
+            android:icon="@mipmap/wodexiaoxi"/>
+        <item
+            android:id="@+id/Dongtai"
+            android:title="我的动态"
+            android:icon="@mipmap/wodedongtai"/>
+    </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/myfavour"
+            android:title="我的收藏"
+            android:icon="@mipmap/shoucang"/>
+        <item
+            android:id="@+id/mytime"
+            android:title="我的时间线"
+            android:icon="@mipmap/shijianxian"/>
+        <item
+            android:id="@+id/mydaoju"
+            android:title="我的道具"
+            android:icon="@mipmap/wodedaoju"/>
+    </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/myfans"
+            android:title="我的粉丝"
+            android:icon="@mipmap/wodefensi"/>
+        <item
+            android:id="@+id/myflow"
+            android:title="我的关注"
+            android:icon="@mipmap/woguanzhude"/>
+        <item
+            android:id="@+id/fujin"
+            android:title="附近的人"
+            android:icon="@mipmap/fujin"/>
+    </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/quit"
+            android:title="退出"
+            android:icon="@mipmap/quit"/>
+    </group>
+</menu>

@@ -25,8 +25,8 @@ public class Message {
     private int publisherId;  //外键
     private String text;
     private long publishDate;
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private int transmitTimes;  //转发次数
     private int favourTimes;   //被点赞次数
     private int commentTimes;  //评论次数
@@ -47,90 +47,11 @@ public class Message {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         publishDate = sdf.parse(date).getTime();
         Log.d("TEST",""+publishDate);
-        x = jsonObject.getInt("x");
-        y = jsonObject.getInt("y");
+        x = jsonObject.getDouble("x");
+        y = jsonObject.getDouble("y");
         transmitTimes = jsonObject.getInt("transmitTimes");
         favourTimes = jsonObject.getInt("favourTimes");
         commentTimes = jsonObject.getInt("commentTimes");
-    }
-    public Message(Cursor cursor){
-        messageId = cursor.getInt(0);
-        publisherId=cursor.getInt(1);
-        text = cursor.getString(2);
-        publishDate = cursor.getLong(3);
-        x = cursor.getInt(4);
-        y = cursor.getInt(5);
-        transmitTimes = cursor.getInt(6);
-        favourTimes = cursor.getInt(7);
-        commentTimes = cursor.getInt(8);
-    }
-    public  Message getMessageById(int message_id){
-        Message message = new Message(mContext);
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(mContext,"quanquan.db3",null,1);
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        try {
-            db = mySQLiteOpenHelper.getWritableDatabase();
-            cursor = db.rawQuery("select * from messageInfo where _id = " + message_id + ";",null);
-            if (cursor.moveToFirst()){
-                message.messageId = cursor.getInt(0);
-                message.publisherId=cursor.getInt(1);
-                message.text = cursor.getString(2);
-                message.publishDate = cursor.getLong(3);
-                message.x = cursor.getInt(4);
-                message.y = cursor.getInt(5);
-                message.transmitTimes = cursor.getInt(6);
-                message.favourTimes = cursor.getInt(7);
-                message.commentTimes = cursor.getInt(8);
-            }
-        }catch (Exception e){
-            Log.d("TEST2","根据messageId获取message失败");
-            e.printStackTrace();
-        }finally {
-            closeEverything(db,cursor);
-        }
-        return  message;
-    }
-    private static void closeEverything(SQLiteDatabase db, Cursor cursor){
-        Log.d("TEST","开始收尾");
-        if (db != null && db.isOpen()){
-            db.close();
-        }
-        if (cursor != null){
-            Log.d("TEST","关闭游标");
-            cursor.close();
-        }
-    }
-    public ContentValues initContentValues(){
-        ContentValues cv = new ContentValues();
-        cv.put("userId",publisherId);
-        cv.put("text",text);
-        cv.put("publish_time",publishDate);
-        cv.put("x",x);
-        cv.put("y",y);
-        cv.put("transmitTimes",transmitTimes);
-        cv.put("favourTimes",favourTimes);
-        cv.put("commentTimes",commentTimes);
-        return cv;
-    }
-    public int insertIntoDatabase(){
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(mContext,"quanquan.db3",null,1);
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        try {
-            db = mySQLiteOpenHelper.getWritableDatabase();
-            ContentValues cv = initContentValues();
-            db.insert("messageInfo",null,cv);
-            cursor = db.rawQuery("select last_insert_rowid() from messageInfo;",null);
-            if (cursor.moveToFirst()){
-                return cursor.getInt(0);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            closeEverything(db,cursor);
-        }
-        return -1;
     }
 
     public int getMessageId() {
@@ -165,19 +86,19 @@ public class Message {
         this.publishDate = publishDate;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(double y) {
         this.y = y;
     }
 

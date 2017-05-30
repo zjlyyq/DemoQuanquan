@@ -1,18 +1,25 @@
 package com.example.zjlyyq.demo.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.zjlyyq.demo.Home;
 import com.example.zjlyyq.demo.HttpTool;
 import com.example.zjlyyq.demo.R;
 import com.example.zjlyyq.demo.models.Message;
@@ -23,22 +30,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 /**
  * Created by jialuzhang on 2017/3/28.
  */
-
-public class ListViewAdapter extends BaseAdapter {
+public class ListViewAdapter extends BaseAdapter implements View.OnClickListener,AdapterView.OnItemClickListener{
     private Context mContext;
     private ArrayList<Message> messages;
     private ArrayList<User> users;
+    ArrayList<ArrayList<String>> imageUrlss;
     FragmentManager fm;
-    public ListViewAdapter(Context context,ArrayList<Message> messages,ArrayList<User> users,FragmentManager fm){
+    GalikGridViewAdapter adapter;
+    private Callback mCallback;
+    private int index = 0;
+    int isclick;
+    public ListViewAdapter(Context context,ArrayList<Message> messages,ArrayList<User> users,FragmentManager fm,ArrayList<ArrayList<String>> imageUrlss,Callback callback){
         this.mContext = context;
         this.messages = messages;
         this.users = users;
         this.fm = fm;
+        this.mCallback = callback;
+        this.imageUrlss = imageUrlss;
     }
     @Override
     public int getCount() {
@@ -56,7 +72,8 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        isclick = 0;
         ViewHolder holder = null;
         if (convertView == null){
             holder = new ViewHolder();
@@ -65,71 +82,62 @@ public class ListViewAdapter extends BaseAdapter {
             holder.textView2=(TextView) convertView.findViewById(R.id.talk);
             holder.imageView=(ImageView)convertView.findViewById(R.id.header);
             holder.gridView = (GridView) convertView.findViewById(R.id.gridview);
+            holder.publish_time = (TextView)convertView.findViewById(R.id.publish_time);
             convertView.setTag(holder);
         }else {
             holder = (ViewHolder)convertView.getTag();
         }
         Message message = this.messages.get(position);
+        User user = this.users.get(position);
         final int user_id = message.getPublisherId();
-        holder.imageView.setImageResource(R.drawable.touxiang);
-        holder.textView.setText(users.get(position).getUserName());
-        holder.textView2.setText(message.getText());
-        new Thread(){
+        //设置发布时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(message.getPublishDate());
+        holder.publish_time.setText(sdf.format(date));
+        //设置头像
+        if (user.getUserPhoto().equals("null")){
+            holder.imageView.setImageResource(R.drawable.touxiang);
+        }
+        else {
+            Glide.with(this.mContext).load(user.getUserPhoto()).into(holder.imageView);
+        }
+        Typeface tf = Typeface.createFromAsset(mContext.getAssets(),"fonts/yy.TTF");
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                try {
-                    User user = getUser(user_id);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onClick(View v) {
+                mCallback.click(v,position);
             }
+        });
 
-        }.start();
-
-        int message_id = message.getMessageId();
-        MessageImage messageImage = new MessageImage(mContext,1,1);
-        ArrayList<Bitmap> pictures = messageImage.getPicturesByMessageId(message_id);
-        GridViewAdapter adapter = new GridViewAdapter(mContext,pictures,fm);
+        //设置用户名
+        holder.textView.setText(user.getUserName());
+        holder.textView.setTypeface(tf);
+        //holder.textView.setOnClickListener(this);
+        //设置内容主体
+        holder.textView2.setText(message.getText());
+        holder.textView2.setTypeface(tf);
+        //设置图片
+        GalikGridViewAdapter adapter = new GalikGridViewAdapter(this.mContext,imageUrlss.get(position));
         holder.gridView.setAdapter(adapter);
         return convertView;
     }
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+    }
+    public interface Callback{
+        public void click(View v,int postion);
+    }
+    @Override
+    public void onClick(View v) {
+        mCallback.click(v,0);
+    }
     private class ViewHolder {
+        TextView publish_time;
         ImageView imageView;
         TextView textView;
         TextView textView2;
         GridView gridView;
     }
-    public User getUser(int userid) throws JSONException, IOException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("userId",userid);
-        HttpTool httpTool = new HttpTool("GetUserById",jsonObject);
-        String result = httpTool.jsonResult();
-        JSONObject user = new JSONObject(result);
-        User user1 = new User(jsonObject);
-        Log.d("TEST",user.toString());
-        return user1;
-    }
-    private class MyAsyncTask extends AsyncTask<Integer, Void, User> {
-        @Override
-        protected User doInBackground(Integer... integers) {
-            for (Integer integer : integers){
-                try {
-                    return getUser(integer);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(User user) {
-            super.onPostExecute(user);
-        }
-    }
 }

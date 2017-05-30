@@ -34,14 +34,14 @@
 
         <Button
             android:layout_width="50dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:id="@+id/button5"
-            android:background="@android:drawable/ic_menu_edit"
+            android:background="@drawable/editpaine"
             android:backgroundTint="@color/abc_input_method_navigation_guard" />
 
 
     </LinearLayout>
-    <ImageView
+    <com.example.zjlyyq.demo.Widget.CircleImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/imageView"
