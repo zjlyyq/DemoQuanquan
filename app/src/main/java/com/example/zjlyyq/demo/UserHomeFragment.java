@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.print.PrintHelper;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,9 +21,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.example.zjlyyq.demo.Tools.UserTools;
+import com.example.zjlyyq.demo.Widget.CircleImageView;
 import com.example.zjlyyq.demo.fragment.MessageFragment;
 import com.example.zjlyyq.demo.fragment.MyFragmentAdapter;
 import com.example.zjlyyq.demo.models.User;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -40,6 +47,10 @@ public class UserHomeFragment extends Fragment {
     private int user_id;
     private int my_id;
     private User user;
+    CircleImageView headImage;
+    TextView userName;
+    TextView fansNum;
+    TextView favorNum;
     public  static UserHomeFragment newInstance(int userid,int myid){
         UserHomeFragment userHomeFragment = new UserHomeFragment();
         Bundle argc = new Bundle();
@@ -76,6 +87,10 @@ public class UserHomeFragment extends Fragment {
         viewPager = (ViewPager)v.findViewById(R.id.user_viewPager);
         tabLayout = (TabLayout)v.findViewById(usertablayout);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        userName = (TextView)v.findViewById(R.id.home_username);
+        favorNum = (TextView)v.findViewById(R.id.favornum);
+        fansNum = (TextView)v.findViewById(R.id.fansnum);
+        headImage = (CircleImageView)v.findViewById(R.id.home_head);
         imessage_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,13 +110,34 @@ public class UserHomeFragment extends Fragment {
         MyFragmentAdapter adapter = new MyFragmentAdapter(getActivity().getSupportFragmentManager(),list);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+        new MyAsyGetUser().execute();
     }
     @Override
     public void onResume() {
         super.onResume();
     }
     //菜单
+    class MyAsyGetUser extends AsyncTask<Void,Void,Void>{
 
+        @Override
+        protected Void doInBackground(Void... voids) {
+            JSONObject userjson = UserTools.getUserById(user_id);
+            Log.d("MYLOG",userjson.toString());
+            try {
+                user = new User(userjson);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Glide.with(getActivity()).load(user.getUserPhoto()).into(headImage);
+            userName.setText(user.getUserName());
+        }
+    }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);

@@ -41,6 +41,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
                             <com.example.zjlyyq.demo.Widget.CircleImageView
+                                android:id="@+id/home_head"
                                 android:src="@drawable/touxiang"
                                 android:layout_gravity="center"
                                 android:layout_width="80dp"
@@ -75,6 +76,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent">
                                         <TextView
+                                            android:id="@+id/favornum"
                                             android:textColor="#ffffff"
                                             android:text="关注 12"
                                             android:padding="5dp"
@@ -92,6 +94,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent">
                                         <TextView
+                                            android:id="@+id/fansnum"
                                             android:textColor="#ffffff"
                                             android:text="粉丝 12"
                                             android:padding="5dp"
