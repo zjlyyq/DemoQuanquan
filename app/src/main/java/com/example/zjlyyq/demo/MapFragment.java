@@ -780,6 +780,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                         Toast.makeText(getActivity(),"name is clicked",Toast.LENGTH_LONG).show();
                         Intent intent1 = new Intent(getActivity(),MessageDetail.class);
                         intent1.putExtra("messageId",messages.get(pos).getMessageId());
+                        intent1.putExtra("userId",userId);
                         startActivity(intent1);
                         break;
                     case R.id.bt_comment:

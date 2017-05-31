@@ -6,6 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -20,6 +25,17 @@ public class Comment {
     private long date;
     private String text;
     private static Context mContext;
+    public Comment(JSONObject jsonObject) throws JSONException, ParseException {
+        userId = jsonObject.getInt("userId");
+        favourTimes = jsonObject.getInt("favourTimes");
+        text = jsonObject.getString("text");
+        String date1 = jsonObject.getString("date");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        date = sdf.parse(date1).getTime();
+    }
+    public Comment(){
+
+    }
     private static void closeEverything(SQLiteDatabase db, Cursor cursor){
         Log.d("TEST","开始收尾");
         if (db != null && db.isOpen()){
