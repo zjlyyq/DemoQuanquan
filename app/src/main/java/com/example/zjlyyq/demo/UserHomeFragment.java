@@ -1,17 +1,22 @@
 package com.example.zjlyyq.demo;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.print.PrintHelper;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +56,8 @@ public class UserHomeFragment extends Fragment {
     TextView userName;
     TextView fansNum;
     TextView favorNum;
+    CollapsingToolbarLayout collapsingToolbarLayout;
+    AppCompatActivity appCompatActivity;
     public  static UserHomeFragment newInstance(int userid,int myid){
         UserHomeFragment userHomeFragment = new UserHomeFragment();
         Bundle argc = new Bundle();
@@ -80,10 +87,14 @@ public class UserHomeFragment extends Fragment {
         return v;
     }
     //初始化界面
+    @TargetApi(Build.VERSION_CODES.M)
     void initView(View v){
+        collapsingToolbarLayout = (CollapsingToolbarLayout)v.findViewById(R.id.collapsing_collaps_toolbar);
         imessage_bt = (TextView)v.findViewById(R.id.imessage_bt);
         mToolbar = (Toolbar)v.findViewById(R.id.toolbar);
         mToolbar.setNavigationIcon(R.mipmap.back);
+        appCompatActivity = (AppCompatActivity)getActivity();
+        appCompatActivity.setSupportActionBar(mToolbar);
         viewPager = (ViewPager)v.findViewById(R.id.user_viewPager);
         tabLayout = (TabLayout)v.findViewById(usertablayout);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -131,11 +142,15 @@ public class UserHomeFragment extends Fragment {
             return null;
         }
 
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             Glide.with(getActivity()).load(user.getUserPhoto()).into(headImage);
             userName.setText(user.getUserName());
+            //appCompatActivity.setTitle(user.getUserName());
+            collapsingToolbarLayout.setTitle(user.getUserName());
+            collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
         }
     }
     @Override

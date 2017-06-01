@@ -16,10 +16,6 @@
             android:title="我的收藏"
             android:icon="@mipmap/shoucang"/>
         <item
-            android:id="@+id/mytime"
-            android:title="我的时间线"
-            android:icon="@mipmap/shijianxian"/>
-        <item
             android:id="@+id/mydaoju"
             android:title="我的道具"
             android:icon="@mipmap/wodedaoju"/>

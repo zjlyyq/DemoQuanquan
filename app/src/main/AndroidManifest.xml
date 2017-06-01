@@ -61,7 +61,10 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".MessageDetail" />
         <activity android:name=".MyMessageActivity" />
-        <activity android:name=".FansActivity"></activity>
+        <activity android:name=".FansActivity" />
+        <activity android:name=".IMessage.IMessageListActivity" />
+        <activity android:name=".MyFavor.MyFavorActivity" />
+        <activity android:name=".FellowActivity"></activity>
     </application>
 
 </manifest>

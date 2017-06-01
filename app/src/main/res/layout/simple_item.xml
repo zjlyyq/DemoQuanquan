@@ -63,14 +63,10 @@
                     </FrameLayout>
 
                 </LinearLayout>
-                <Button
-                    android:layout_weight="0.2"
+                <ImageView
                     android:id="@+id/fellow_bt"
-                    android:text="+关注"
-                    android:focusable="false"
-                    android:textColor="#e25c23"
-                    android:background="@color/cardview_light_background"
-                    android:layout_width="0dp"
+                    android:background="@mipmap/fellow"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
             <!--正文-->

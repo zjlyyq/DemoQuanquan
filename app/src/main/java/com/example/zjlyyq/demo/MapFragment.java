@@ -51,6 +51,9 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.bumptech.glide.Glide;
 import com.example.zjlyyq.demo.Adapter.ListViewAdapter;
+import com.example.zjlyyq.demo.IMessage.IMessageListActivity;
+import com.example.zjlyyq.demo.MyFavor.MyFavorActivity;
+import com.example.zjlyyq.demo.Tools.UserTools;
 import com.example.zjlyyq.demo.Widget.CircleImageView;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.User;
@@ -62,13 +65,17 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 import static com.example.zjlyyq.demo.R.color.bright_foreground_disabled_material_dark;
 import static com.example.zjlyyq.demo.R.color.clickBackground;
 import static com.example.zjlyyq.demo.R.id.default_activity_button;
 import static com.example.zjlyyq.demo.R.id.myMessage;
+import static com.example.zjlyyq.demo.R.id.whoLine;
 
 /**
  * Created by jialuzhang on 2017/3/19.
@@ -99,7 +106,10 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     NavigationView navigationView;
     DrawerLayout drawerLayout;
     String userInfo = "";
-    ArrayList<Integer> favorMessageIds;
+    public static Set<Integer> favorMessageIds;
+    public static Set<Integer> currentfavorMessageIds;
+    public static Set<Integer> myFellows;
+    public static Set<Integer> currentMyFellows;
     public static ArrayList<Integer> fansIds;
     private int userId;
     private AMapLocationClient mLocationClient = null;//定位发起端
@@ -124,10 +134,13 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         super.onCreate(savedInstanceState);
         Bundle argc = getArguments();
         userId = argc.getInt("userId");
-        //Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         users = new ArrayList<User>();
         imageUrls = new ArrayList<String>();
         imageUrlss = new ArrayList<ArrayList<String>>();
+        favorMessageIds = new HashSet<Integer>();
+        currentfavorMessageIds = new HashSet<>();
+        myFellows = new HashSet<Integer>();
+        currentMyFellows = new HashSet<>();
     }
 
     @Nullable
@@ -137,7 +150,6 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         toFindEverything(view);
         initMap();
         mapView.onCreate(savedInstanceState);
-        Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
         return view;
     }
     private void initMap() {
@@ -273,8 +285,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
     @Override
     public void onResume() {
         super.onResume();
-        //Toast.makeText(getActivity(),"欢迎回到圈圈,你的编号是:"+userId,Toast.LENGTH_LONG).show();
-        Toast.makeText(getActivity(),"OnResume",Toast.LENGTH_LONG).show();
+
         new GetUserInfoAsyncTask().execute();
         aMap.setMapType(AMap.MAP_TYPE_NIGHT);
         mapView.onResume();
@@ -431,8 +442,105 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         super.onPause();
         aMap.setMapType(AMap.MAP_TYPE_NIGHT);
         mapView.onPause();
-    }
 
+        //处理点赞的逻辑
+        Iterator<Integer> iterator = favorMessageIds.iterator();
+        while (iterator.hasNext()){
+            int id = iterator.next();
+            if (! currentfavorMessageIds.contains(id)){
+                //插入数据库
+                long ids = userId + id*1024;
+                new InsertFavor().execute(ids);
+            }
+        }
+        iterator = currentfavorMessageIds.iterator();
+        while (iterator.hasNext()){
+            int id = iterator.next();
+            if (! favorMessageIds.contains(id)){
+                //从数据库删除
+                long ids = userId + id*1024;
+                new DeleteFavor().execute(ids);
+            }
+        }
+
+        //处理关注的逻辑
+        iterator = myFellows.iterator();
+        while (iterator.hasNext()){
+            int id = iterator.next();
+            if (! currentMyFellows.contains(id)){
+                //插入数据库
+                long ids = userId + id*1024;
+                new InsertRelation().execute(ids);
+            }
+        }
+        iterator = currentMyFellows.iterator();
+        while (iterator.hasNext()){
+            int id = iterator.next();
+            if (! myFellows.contains(id)){
+                //从数据库删除
+                long ids = userId + id*1024;
+                new DeleteFellow().execute(ids);
+            }
+        }
+    }
+    class InsertFavor extends AsyncTask<Long,Void,Void>{
+        @Override
+        protected Void doInBackground(Long... params) {
+            Long ids = params[0];
+            int userId = (int)(ids%1024);
+            int messageId = (int)(ids/1024);
+            try {
+                UserTools.updateFavor(userId,messageId,1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+    class DeleteFavor extends AsyncTask<Long,Void,Void>{
+        @Override
+        protected Void doInBackground(Long... params) {
+            Long ids = params[0];
+            int userId = (int)(ids%1024);
+            int messageId = (int)(ids/1024);
+            try {
+                UserTools.updateFavor(userId,messageId,-1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+    class InsertRelation extends AsyncTask<Long,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Long... params) {
+            long ids = params[0];
+            int user1Id = (int)(ids % 1024);
+            int user2Id = (int)(ids / 1024);
+            try {
+                UserTools.updateFellow(user1Id,user2Id,1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+    class DeleteFellow extends AsyncTask<Long,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Long... params) {
+            long ids = params[0];
+            int user1Id = (int)(ids % 1024);
+            int user2Id = (int)(ids / 1024);
+            try {
+                UserTools.updateFellow(user1Id,user2Id,-1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
     @Override
     public void onStop() {
         super.onStop();
@@ -542,7 +650,6 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-       // Toast.makeText(getActivity(),"光标被点击",Toast.LENGTH_LONG).show();
         marker.showInfoWindow();
         return true;
     }
@@ -555,6 +662,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 index = i;
                 Intent intent = new Intent(getActivity(),MessageDetail.class);
                 intent.putExtra("messageId",messages.get(i).getMessageId());
+                intent.putExtra("userId",userId);
                 startActivity(intent);
                 break;
             }
@@ -576,6 +684,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 e.printStackTrace();
             }
             //获得所有粉丝id
+
             try {
                 getFansId();
                 getFans();
@@ -652,6 +761,11 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             Log.d("TESTUSER",""+user1.getUserId());
             users.add(user1);
         }
+        favorMessageIds = UserTools.getFavorById(userId);
+        currentfavorMessageIds.addAll(favorMessageIds);
+
+        myFellows = UserTools.getFellows(userId);
+        currentMyFellows.addAll(myFellows);
     }
     public void getFans() throws JSONException, IOException {
         //ArrayList<User> users = new ArrayList<User>();
@@ -676,23 +790,11 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
         jsonObject.put("userId",userId);
         HttpTool httpTool = new HttpTool("GetRelationsbyUserId",jsonObject);
         String result = httpTool.jsonResult();
-        Log.d("FANS",result);
-        if (result.equals("error")){
-            Log.d("FANS","对不起，还没有粉丝");
-            return;
-        }
         JSONObject fansIdsJson = new JSONObject(result);
-        for(int i = 0;i < 10000;i ++){
-            try {
-                int user2Id = fansIdsJson.getInt(""+i);
-                fansIds.add(user2Id);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                i = 100000;
-            }
-        }
-        if (fansIds.size() > 0){
-            Log.d("FANS","有粉丝");
+        int count = fansIdsJson.getInt("count");
+        for(int i = 0;i < count;i ++){
+            int user2Id = fansIdsJson.getInt(""+i);
+            fansIds.add(user2Id);
         }
     }
     /**
@@ -777,7 +879,6 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                         startActivity(intent);
                         break;
                     case R.id.name:
-                        Toast.makeText(getActivity(),"name is clicked",Toast.LENGTH_LONG).show();
                         Intent intent1 = new Intent(getActivity(),MessageDetail.class);
                         intent1.putExtra("messageId",messages.get(pos).getMessageId());
                         intent1.putExtra("userId",userId);
@@ -789,7 +890,28 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                         startActivity(intent2);
                         break;
                     case R.id.bt_favor:
-                        v.setBackgroundColor(Color.GREEN);
+                        int mId = messages.get(pos).getMessageId();
+                        if (favorMessageIds.contains(mId)){
+                            v.setBackgroundResource(R.drawable.dianzan);
+                            favorMessageIds.remove(mId);
+                            //v.setBackgroundResource(R.mipmap.favored);
+                        }
+                        else {
+                            v.setBackgroundResource(R.mipmap.favored);
+                            favorMessageIds.add(mId);
+                        }
+                        break;
+                    case R.id.fellow_bt:
+                        int uId = messages.get(pos).getPublisherId();
+                        if (myFellows.contains(uId)){
+                            v.setBackgroundResource(R.mipmap.fellow);
+                            myFellows.remove(uId);
+                            //v.setBackgroundResource(R.mipmap.favored);
+                        }
+                        else {
+                            v.setBackgroundResource(R.mipmap.fellowed);
+                            myFellows.add(uId);
+                        }
                         break;
                     default:
                         break;
@@ -802,6 +924,7 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
             listView.setAdapter(adapter);
         }
     }
+
     class MyNavigationViewListener implements NavigationView.OnNavigationItemSelectedListener {
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
@@ -814,6 +937,22 @@ public class MapFragment extends Fragment implements LocationSource,AMapLocation
                 case R.id.myfans:
                     Intent intent1 = new Intent(getActivity(),FansActivity.class);
                     startActivity(intent1);
+                    break;
+                case R.id.myMessage:
+                    Intent intent2 = new Intent(getActivity(), IMessageListActivity.class);
+                    intent2.putExtra("userId",userId);
+                    startActivity(intent2);
+                    break;
+                case R.id.myfavour:
+                    Intent intent3 = new Intent(getActivity(), MyFavorActivity.class);
+                    startActivity(intent3);
+                    break;
+                case R.id.quit:
+                    getActivity().finish();
+                    break;
+                case R.id.myflow:
+                    Intent intent4 = new Intent(getActivity(), FellowActivity.class);
+                    startActivity(intent4);
                     break;
                 default:
                     return true;

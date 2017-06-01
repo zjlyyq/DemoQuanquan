@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.zjlyyq.demo.Home;
 import com.example.zjlyyq.demo.HttpTool;
+import com.example.zjlyyq.demo.MapFragment;
 import com.example.zjlyyq.demo.R;
 import com.example.zjlyyq.demo.models.Message;
 import com.example.zjlyyq.demo.models.MessageImage;
@@ -86,6 +87,7 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
             holder.publish_time = (TextView)convertView.findViewById(R.id.publish_time);
             holder.bt_comment = (ImageButton)convertView.findViewById(R.id.bt_comment);
             holder.bt_favor = (ImageButton)convertView.findViewById(R.id.bt_favor);
+            holder.fellow_bt = (ImageView)convertView.findViewById(R.id.fellow_bt);
             convertView.setTag(holder);
         }else {
             holder = (ViewHolder)convertView.getTag();
@@ -126,9 +128,18 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
         holder.textView2.setText(message.getText());
         holder.textView2.setTypeface(tf);
         //设置图片
-        GalikGridViewAdapter adapter = new GalikGridViewAdapter(this.mContext,imageUrlss.get(position));
-        holder.gridView.setAdapter(adapter);
+        if (imageUrlss != null){
+            GalikGridViewAdapter adapter = new GalikGridViewAdapter(this.mContext,imageUrlss.get(position));
+            holder.gridView.setAdapter(adapter);
+        }
+
         holder.bt_favor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.click(v,position);
+            }
+        });
+        holder.fellow_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCallback.click(v,position);
@@ -140,6 +151,12 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
                 mCallback.click(v,position);
             }
         });
+        if (MapFragment.favorMessageIds.contains(message.getMessageId())){
+            holder.bt_favor.setBackgroundResource(R.mipmap.favored);
+        }
+        if (MapFragment.myFellows.contains(message.getPublisherId())){
+            holder.fellow_bt.setImageResource(R.mipmap.fellowed);
+        }
         return convertView;
     }
     @Override
@@ -161,6 +178,7 @@ public class ListViewAdapter extends BaseAdapter implements View.OnClickListener
         GridView gridView;
         ImageButton bt_favor;
         ImageButton bt_comment;
+        ImageView fellow_bt;
     }
 
 }

@@ -32,8 +32,10 @@ import com.example.zjlyyq.demo.models.User;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MessageDetail extends AppCompatActivity {
     CircleImageView circleImageView;      //头像
@@ -70,14 +72,19 @@ public class MessageDetail extends AppCompatActivity {
                 Comment comment = new Comment();
                 comment.setText(comment_et.getText().toString());
                 comment.setUserId(userId);
+                comment.setMessageId(message_id);
+                comment.setDate(new Date().getTime());
                 comments.add(comment);
                 commenters.add(user);
+                comment_et.setText("");
                 adapter.notifyDataSetChanged();
+                new InsertCommentAsy().execute(comment);
             }
         });
     }
     public void initToolbar(){
         toolbar = (Toolbar)findViewById(R.id.message_toolbar);
+        toolbar.setTitle("正文");
         toolbar.setNavigationIcon(R.mipmap.back);
     }
     public void initData(){
@@ -99,6 +106,18 @@ public class MessageDetail extends AppCompatActivity {
     }
     public void getComments(){
 
+    }
+    class InsertCommentAsy extends AsyncTask<Comment,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Comment... params) {
+            try {
+                MessageTools.insertIntoComment(params[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
     class  MyAsyMessage extends AsyncTask<Void,Void,Void>{
         @Override
@@ -140,6 +159,7 @@ public class MessageDetail extends AppCompatActivity {
             new GetCommentAsy().execute();
         }
     }
+
     class GetCommentAsy extends AsyncTask<Void,Void,Void>{
 
         @Override

@@ -162,15 +162,6 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
         photo_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /**
-                 * 这里需要改进图片的上传方式，现在只能上传裁剪过的图片
-                 */
-                /*
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");   //说明要选择的内容是图片
-                intent.putExtra("return-data", true); //要返回内容
-                startActivityForResult(intent,GET_PHOTO);
-                */
                 pickFromGallery();
             }
         });
